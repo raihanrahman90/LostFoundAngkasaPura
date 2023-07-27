@@ -8,18 +8,18 @@ namespace LostFound.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;
 
-        public AuthController(ILogger<AuthController> logger, IAuthService authService)
+        public AdminController(ILogger<AuthController> logger, IAuthService authService)
         {
             _authService = authService;
         }
 
         [HttpPost("login")]
         [ProducesResponseType(typeof(AccessResponseDTO), 200)]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO dto)
+        public async Task<ActionResult> Login([FromBody] LoginRequestDTO dto)
         {
             var result = await _authService.Login(dto);
             HttpContext.Response.Cookies.Append("refreshToken", result.RefreshToken,

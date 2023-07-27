@@ -1,5 +1,7 @@
 using LostFound.DAL;
+using LostFound.DAL.Repositories;
 using LostFound.DTO.Error;
+using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.Service.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
 
@@ -97,6 +100,8 @@ builder.Services.AddCors(options =>
             .WithExposedHeaders("Content-Disposition");
         });
 });
+builder.Services.AddScoped<JwtSecurityTokenHandler>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
@@ -117,28 +122,27 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseExceptionHandler(c => c.Run(async context =>
 {
     var exception = context.Features.Get<IExceptionHandlerPathFeature>().Error;
-    Object response = null;
+    DefaultResponse<String> response = new DefaultResponse<String>();
+    response.Success = false;
     if (exception is DataMessageError)
     {
-        response = new { Message = exception.Message };
-
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        response.Data = exception.Message;
+        response.StatusCode = (int)HttpStatusCode.BadRequest;
     }
     else if (exception is NotFoundError)
     {
-        response = new { Message = "Data not found" };
-        context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+        response.Data = "Data not found" ;
+        response.StatusCode = (int)HttpStatusCode.NotFound;
     }
     else if (exception is NotAuthorizeError)
     {
-        response = new { Message = "Access denied" };
-        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+        response.Data = "Access Denied";
+        response.StatusCode = (int)HttpStatusCode.Forbidden;
     }
     else
     {
-        response = new { Message = exception.Message };
-
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        response.Data = exception.Message;
+        response.StatusCode = (int)HttpStatusCode.BadRequest;
     }
 
 

@@ -9,6 +9,8 @@ namespace LostFound.DAL.Repositories
         private DbContext dbContext;
 
         public DbSet<Admin> AdminRepository { get; set; }
+        public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
+        public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
 
         public UnitOfWork(LostFoundDbContext dbContext, IConfiguration configuration)

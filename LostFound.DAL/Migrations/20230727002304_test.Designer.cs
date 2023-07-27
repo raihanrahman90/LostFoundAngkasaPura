@@ -3,6 +3,7 @@ using System;
 using LostFound.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LostFound.DAL.Migrations
 {
     [DbContext(typeof(LostFoundDbContext))]
-    partial class LostFoundDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230727002304_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,90 +64,6 @@ namespace LostFound.DAL.Migrations
                     b.ToTable("admin");
                 });
 
-            modelBuilder.Entity("LostFound.DAL.Model.ItemCategory", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(36)
-                        .HasColumnType("varchar(36)");
-
-                    b.Property<bool>("ActiveFlag")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("LastUpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("item_category");
-                });
-
-            modelBuilder.Entity("LostFound.DAL.Model.ItemFound", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(36)
-                        .HasColumnType("varchar(36)");
-
-                    b.Property<bool>("ActiveFlag")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("LastUpdatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("LastUpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.ToTable("item_found");
-                });
-
             modelBuilder.Entity("LostFound.DAL.Model.User", b =>
                 {
                     b.Property<string>("Id")
@@ -190,17 +108,6 @@ namespace LostFound.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("user");
-                });
-
-            modelBuilder.Entity("LostFound.DAL.Model.ItemFound", b =>
-                {
-                    b.HasOne("LostFound.DAL.Model.Admin", "Admin")
-                        .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
                 });
 #pragma warning restore 612, 618
         }

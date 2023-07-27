@@ -6,6 +6,7 @@ namespace LostFound.DAL.Model
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public string Unit { get; set; }
         public string Access { get; set; } = "Admin";
         public string RefreshToken { get; set; }
     }

@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using LostFound.DAL.Repositories;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using LostFound.DTO.Error;
+using AutoMapper;
+using LostFoundAngkasaPura.DTO;
 
 namespace LostFoundAngkasaPura.Service.Auth
 {
@@ -18,13 +21,51 @@ namespace LostFoundAngkasaPura.Service.Auth
         private readonly string ValidAudience;
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
         private readonly IUnitOfWork _unitOfWork;
-
+        private IMapper _mapper;
         public AuthService(IConfiguration configuration, JwtSecurityTokenHandler jwtSecurityTokenHandler, IUnitOfWork unitOfWork)
         {
             JwtSecret = configuration.GetValue<string>("JWT:Secret");
             _jwtSecurityTokenHandler = jwtSecurityTokenHandler;
             _unitOfWork = unitOfWork;
+            _mapper = new Mapper(new MapperConfiguration(t =>
+            {
+                t.CreateMap<User, UserResponseDTO>();
+            }));
          }
+
+        public async Task<AccessResponseDTO> GetAccessToken(string refreshToken)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.RefreshToken.Equals(refreshToken)).FirstOrDefaultAsync();
+            if (user == null) throw new DataMessageError(ErrorMessageConstant.RefreshTokenNotFound);
+
+            var accessToken = GetAccessToken(user.Email, user.Id);
+            return new AccessResponseDTO()
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+        }
+
+        public async Task<AccessResponseDTO> Login(LoginRequestDTO request)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Email.Equals(request.Email) && t.ActiveFlag).FirstOrDefaultAsync();
+            if (user == null) throw new DataMessageError(ErrorMessageConstant.EmailNotFound);
+
+            if (String.IsNullOrWhiteSpace(user.RefreshToken))
+            {
+                var refreshToken = await GetUniqueToken();
+                user.RefreshToken = refreshToken;
+                _unitOfWork.UserRepository.Update(user);
+                await _unitOfWork.SaveAsync();
+            }
+
+            var accessToken = GetAccessToken(user.Email, user.Id);
+            return new AccessResponseDTO()
+            {
+                RefreshToken = user.RefreshToken,
+                AccessToken = accessToken
+            };
+        }
 
         public async Task<AccessResponseDTO> Register(RegisterRequestDTO request)
         {
@@ -41,15 +82,15 @@ namespace LostFoundAngkasaPura.Service.Auth
             await _unitOfWork.UserRepository.AddAsync(user);
             await _unitOfWork.SaveAsync();
 
-            var accessToken = GetToken(request.Email, user.Id);
+            var accessToken = GetAccessToken(request.Email, user.Id);
             return new AccessResponseDTO()
             {
                 AccessToken = accessToken,
-                RefeshToken = refreshToken
+                RefreshToken = refreshToken
             };
         }
 
-        private string GetToken(string email, string userId)
+        private string GetAccessToken(string email, string userId)
         {
             var authClaims = new List<Claim>()
             {
@@ -66,9 +107,19 @@ namespace LostFoundAngkasaPura.Service.Auth
                 expires: expire,
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256Signature)
+                
                 );
             var result = _jwtSecurityTokenHandler.WriteToken(token);
             return result;
+        }
+
+        public async Task<DefaultResponse<UserResponseDTO>> Logout(string userId)
+        {
+            var user = await findUserById(userId);
+            user.RefreshToken = null;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
+            return new DefaultResponse<UserResponseDTO>(_mapper.Map<UserResponseDTO>(user));
         }
 
         private async Task<string> GetUniqueToken()
@@ -83,6 +134,13 @@ namespace LostFoundAngkasaPura.Service.Auth
                 if (!isTokenExist) break;
             }
             return token;
+        }
+
+        private async Task<User> findUserById(string userId)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId) && t.ActiveFlag).FirstOrDefaultAsync();
+            if (user == null) throw new DataMessageError(ErrorMessageConstant.UserNotFound);
+            return user;
         }
     }
 }

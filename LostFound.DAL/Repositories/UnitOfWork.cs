@@ -1,8 +1,8 @@
-﻿using LostFound.DAL.Model;
+﻿using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace LostFound.DAL.Repositories
+namespace LostFoundAngkasaPura.DAL.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {

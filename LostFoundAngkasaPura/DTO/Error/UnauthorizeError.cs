@@ -1,4 +1,4 @@
-﻿namespace LostFound.DTO.Error
+﻿namespace LostFoundAngkasaPura.DTO.Error
 {
     public class UnauthorizeError : BaseException
     {

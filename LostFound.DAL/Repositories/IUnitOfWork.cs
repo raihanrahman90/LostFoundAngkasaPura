@@ -1,7 +1,7 @@
-﻿using LostFound.DAL.Model;
+﻿using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace LostFound.DAL.Repositories
+namespace LostFoundAngkasaPura.DAL.Repositories
 {
     public interface IUnitOfWork
     {

@@ -1,6 +1,6 @@
-﻿using LostFound.DAL.Model;
+﻿using LostFoundAngkasaPura.DAL.Model;
 
-namespace LostFound.DAL.Model
+namespace LostFoundAngkasaPura.DAL.Model
 {
     public class Admin : BaseModel
     {

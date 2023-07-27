@@ -1,7 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 
-namespace LostFound.DAL.Model
+namespace LostFoundAngkasaPura.DAL.Model
 {
     public class BaseModel
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LostFound.DAL.Model
+namespace LostFoundAngkasaPura.DAL.Model
 {
     public class ItemFound : BaseModel
     {

@@ -33,22 +33,6 @@ namespace LostFound.Controllers
             return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
         }
 
-        [HttpPost("register")]
-        [ProducesResponseType(typeof(AccessResponseDTO), 200)]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDTO dto)
-        {
-            var result = await _authService.Register(dto);
-            HttpContext.Response.Cookies.Append("refreshToken", result.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None,
-                });
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
-        }
-
         [HttpGet("access-token")]
         [ProducesResponseType(typeof(AccessResponseDTO), 200)]
         public async Task<IActionResult> RefreshToken()

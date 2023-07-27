@@ -1,8 +1,8 @@
 ﻿
-using LostFound.DAL.Model;
+using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace LostFound.DAL
+namespace LostFoundAngkasaPura.DAL
 {
     public class LostFoundDbContext : DbContext
     {

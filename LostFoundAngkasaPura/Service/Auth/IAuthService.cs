@@ -1,4 +1,4 @@
-﻿using LostFound.DAL.Model;
+﻿using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Auth;
 

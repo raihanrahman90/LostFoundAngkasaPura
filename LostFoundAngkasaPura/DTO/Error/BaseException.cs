@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace LostFound.DTO.Error
+namespace LostFoundAngkasaPura.DTO.Error
 {
     public class BaseException : Exception
     {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LostFound.DAL.Migrations
+namespace LostFoundAngkasaPura.DAL.Migrations
 {
     public partial class init_auth : Migration
     {

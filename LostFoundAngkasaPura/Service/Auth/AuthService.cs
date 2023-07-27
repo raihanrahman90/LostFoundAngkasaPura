@@ -3,12 +3,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using LostFound.DAL.Model;
+using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using LostFound.DAL.Repositories;
+using LostFoundAngkasaPura.DAL.Repositories;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using LostFound.DTO.Error;
+using LostFoundAngkasaPura.DTO.Error;
 using AutoMapper;
 using LostFoundAngkasaPura.DTO;
 

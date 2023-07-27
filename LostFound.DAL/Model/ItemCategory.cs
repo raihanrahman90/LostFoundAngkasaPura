@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LostFound.DAL.Model
+namespace LostFoundAngkasaPura.DAL.Model
 {
     public class ItemCategory : BaseModel
     {

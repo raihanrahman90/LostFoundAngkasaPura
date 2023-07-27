@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LostFound.DAL\LostFoundAngkasaPura.DAL.csproj" />
+    <ProjectReference Include="..\LostFoundAngkasaPura.DAL\LostFoundAngkasaPura.DAL.csproj" />
   </ItemGroup>
 
 </Project>

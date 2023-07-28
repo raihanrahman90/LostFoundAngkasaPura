@@ -26,7 +26,6 @@ namespace LostFound.Controllers
                 new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
                     IsEssential = true,
                     SameSite = SameSiteMode.None,
                 });
@@ -42,7 +41,6 @@ namespace LostFound.Controllers
                 new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
                     IsEssential = true,
                     SameSite = SameSiteMode.None,
                 });

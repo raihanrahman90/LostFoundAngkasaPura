@@ -1,5 +1,6 @@
 using LostFoundAngkasaPura.DAL;
 using LostFoundAngkasaPura.DAL.Repositories;
+using LostFoundAngkasaPura.DAL.Seeder;
 using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.Service.Auth;
@@ -56,7 +57,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 string mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddTransient<DataSeeder>();
 builder.Services.AddDbContext<LostFoundDbContext>(p => p.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -105,7 +109,12 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
-
+var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+using (var scope = scopedFactory.CreateScope())
+{
+    var service = scope.ServiceProvider.GetService<DataSeeder>();
+    service.Seed();
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

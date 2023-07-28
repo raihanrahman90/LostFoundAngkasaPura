@@ -69,6 +69,8 @@ namespace LostFoundAngkasaPura.Service.Auth
 
         public async Task<AccessResponseDTO> Register(RegisterRequestDTO request)
         {
+            var isEmailUsed = await _unitOfWork.UserRepository.AnyAsync(t => t.Email.Equals(request.Email) && t.ActiveFlag);
+            if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var refreshToken = await GetUniqueToken();
             var user = new User()

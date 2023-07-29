@@ -20,7 +20,7 @@ namespace LostFound.Controllers
         [HttpGet("")]
         [ProducesResponseType(typeof(DefaultResponse<Pagination<AdminResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
+        [CustomAuthorize]
         public async Task<IActionResult> GetListAdmin(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,

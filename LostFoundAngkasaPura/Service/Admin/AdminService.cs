@@ -4,6 +4,7 @@ using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
 using LostFoundAngkasaPura.DTO.Error;
+using LostFoundAngkasaPura.Service.Mailer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Extensions;
@@ -22,13 +23,19 @@ namespace LostFoundAngkasaPura.Service.Admin
         private readonly string ValidAudience;
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
         private readonly IMapper _mapper;
+        private readonly IMailerService _mailserService;
 
-        public AdminService(IUnitOfWork uow, JwtSecurityTokenHandler jwtSecurityTokenHandler, IConfiguration configuration)
+        public AdminService(
+            IUnitOfWork uow, 
+            JwtSecurityTokenHandler jwtSecurityTokenHandler, 
+            IConfiguration configuration,
+            IMailerService mailerService)
         {
             ValidIssuer = configuration.GetValue<string>("JWT:ValidIssuer");
             ValidAudience = configuration.GetValue<string>("JWT:ValidAudience");
             JwtSecret = configuration.GetValue<string>("JWT:Secret");
             _jwtSecurityTokenHandler = jwtSecurityTokenHandler;
+            _mailserService = mailerService;
             _unitOfWork = uow;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
@@ -76,8 +83,8 @@ namespace LostFoundAngkasaPura.Service.Admin
         public async Task<AdminResponseDTO> CreateAdmin(AdminCreateRequestDTO request, string adminId)
         {
             bool isSuperAdmin = false;
-            if (request.Equals(AdminAccess.SuperAdmin.GetDisplayName())) isSuperAdmin = true;
-            else if (request.Equals(AdminAccess.Admin.GetDisplayName())) isSuperAdmin = false;
+            if (request.Access.ToLower().Equals(AdminAccess.SuperAdmin.GetDisplayName().ToLower())) isSuperAdmin = true;
+            else if (request.Access.ToLower().Equals(AdminAccess.Admin.GetDisplayName().ToLower())) isSuperAdmin = false;
             else throw new DataMessageError(ErrorMessageConstant.NotValidField("Access"));
             var password = Utils.GeneralUtils.GetRandomPassword(10);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
@@ -98,6 +105,7 @@ namespace LostFoundAngkasaPura.Service.Admin
 
             await _unitOfWork.AdminRepository.AddAsync(admin);
             await _unitOfWork.SaveAsync();
+            _mailserService.CreateAdmin(request.Email, request.Name, password);
             return _mapper.Map<AdminResponseDTO>(admin);
         }
 

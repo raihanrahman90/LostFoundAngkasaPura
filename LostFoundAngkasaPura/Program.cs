@@ -16,6 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Text;
 using LostFoundAngkasaPura.Service.Admin;
+using LostFoundAngkasaPura.Service.Mailer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,6 +110,7 @@ builder.Services.AddScoped<JwtSecurityTokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IMailerService, MailerService>();
 
 var app = builder.Build();
 var scopedFactory = app.Services.GetService<IServiceScopeFactory>();

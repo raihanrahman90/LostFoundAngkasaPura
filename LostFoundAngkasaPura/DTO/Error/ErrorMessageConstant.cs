@@ -17,5 +17,7 @@
         public static string UploadFile = "Failed upload file, please contact the developer";
 
         public static string UserNotFound = "User not found";
+
+        public static string NotValidField(string field) { return $"Not valid field {field}'"; }
     }
 }

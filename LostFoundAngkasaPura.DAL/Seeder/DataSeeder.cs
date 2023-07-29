@@ -22,6 +22,7 @@ namespace LostFoundAngkasaPura.DAL.Seeder
             {
                 var admin = new Admin()
                 {
+                    
                    Access = AdminAccess.SuperAdmin,
                    ActiveFlag = true,
                    CreatedBy = "Seeder",
@@ -31,7 +32,8 @@ namespace LostFoundAngkasaPura.DAL.Seeder
                    LastUpdatedDate = DateTime.Now,
                    Password = "$2b$10$WP4uGTm0Yam84Y70sCSTCuAVL34OXr2ejK9inWpC8uszD1JARUPRi",
                    RefreshToken = "LEwtsmCEUR7W3GXZ7PA6bWNUwaIkrKuY65plee5ekOvXpyrdWBk06Eh0Uk2sqpQwZA+5yYL+SckQA1Pp8OKO4Q==",
-                   Unit = "Developer"
+                   Unit = "Developer",
+                   Name ="Raihan"
                 };
                 lostFoundDbContext.admin.Add(admin);
                 lostFoundDbContext.SaveChanges();

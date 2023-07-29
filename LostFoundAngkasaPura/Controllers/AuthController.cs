@@ -57,7 +57,7 @@ namespace LostFound.Controllers
         }
 
         [HttpGet("logout")]
-        [CustomAuthorize("false")]
+        [CustomAuthorize]
         public IActionResult Logout()
         {
             HttpContext.Response.Cookies.Delete("refreshToken");
@@ -65,7 +65,7 @@ namespace LostFound.Controllers
         }
 
         [HttpGet("logout-all")]
-        [CustomAuthorize("false")]
+        [CustomAuthorize]
         public async Task<IActionResult> LogoutAll()
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;

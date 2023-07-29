@@ -25,6 +25,8 @@ namespace LostFoundAngkasaPura.Service.Auth
         public AuthService(IConfiguration configuration, JwtSecurityTokenHandler jwtSecurityTokenHandler, IUnitOfWork unitOfWork)
         {
             JwtSecret = configuration.GetValue<string>("JWT:Secret");
+            ValidIssuer = configuration.GetValue<string>("JWT:ValidIssuer");
+            ValidAudience = configuration.GetValue<string>("JWT:ValidAudience");
             _jwtSecurityTokenHandler = jwtSecurityTokenHandler;
             _unitOfWork = unitOfWork;
             _mapper = new Mapper(new MapperConfiguration(t =>
@@ -51,9 +53,12 @@ namespace LostFoundAngkasaPura.Service.Auth
             var user = await _unitOfWork.UserRepository.Where(t => t.Email.Equals(request.Email) && t.ActiveFlag).FirstOrDefaultAsync();
             if (user == null) throw new DataMessageError(ErrorMessageConstant.EmailNotFound);
 
+            var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+            if (!isPasswordValid) throw new DataMessageError(ErrorMessageConstant.PasswordWrong);
+
             if (String.IsNullOrWhiteSpace(user.RefreshToken))
             {
-                var refreshToken = await GetUniqueToken();
+                var refreshToken = await GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
                 _unitOfWork.UserRepository.Update(user);
                 await _unitOfWork.SaveAsync();
@@ -72,7 +77,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             var isEmailUsed = await _unitOfWork.UserRepository.AnyAsync(t => t.Email.Equals(request.Email) && t.ActiveFlag);
             if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            var refreshToken = await GetUniqueToken();
+            var refreshToken = await GenerateRefreshToken();
             var user = new User()
             {
                 Email = request.Email,
@@ -99,6 +104,7 @@ namespace LostFoundAngkasaPura.Service.Auth
                 new Claim("Id", userId),
                 new Claim("Email", email),
                 new Claim("IsAdmin", "false"),
+                new Claim("Access", "User"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSecret));
@@ -124,7 +130,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             return new DefaultResponse<UserResponseDTO>(_mapper.Map<UserResponseDTO>(user));
         }
 
-        private async Task<string> GetUniqueToken()
+        private async Task<string> GenerateRefreshToken()
         {
             string token = "";
             while (true)

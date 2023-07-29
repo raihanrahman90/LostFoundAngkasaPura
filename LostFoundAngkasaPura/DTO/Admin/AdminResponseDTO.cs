@@ -6,5 +6,6 @@
         public string Name { get; set; }
         public string Email { get; set; }
         public string Access { get; set; }
+        public bool ActiveFlag { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace LostFoundAngkasaPura.DTO.Admin
 {
-    public class AccessResponseDTO
+    public class AdminAccessResponseDTO
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

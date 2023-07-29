@@ -1,9 +1,15 @@
-﻿using LostFoundAngkasaPura.DTO.Admin;
+﻿using LostFoundAngkasaPura.DTO;
+using LostFoundAngkasaPura.DTO.Admin;
 
 namespace LostFoundAngkasaPura.Service.Admin
 {
     public interface IAdminService
     {
-        Task<AccessResponseDTO> Login(AdminLoginRequestDTO request);
+        Task<AdminAccessResponseDTO> Login(AdminLoginRequestDTO request);
+        Task<AdminAccessResponseDTO> GetAccessToken(string refreshToken);
+        Task<Pagination<AdminResponseDTO>> GetListAdmin(int page, int size, string? email, string? access, string? name);
+        Task<AdminResponseDTO> CreateAdmin(AdminCreateRequestDTO request, string adminId);
+        Task<AdminResponseDTO> GetDetailAdmin(string adminId);
+        Task LogoutAll(string userId);
     }
 }

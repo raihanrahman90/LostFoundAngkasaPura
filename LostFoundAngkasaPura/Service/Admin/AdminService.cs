@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static LostFoundAngkasaPura.Constant.Constant;
 
 namespace LostFoundAngkasaPura.Service.Admin
 {
@@ -48,7 +49,7 @@ namespace LostFoundAngkasaPura.Service.Admin
             var admin = await _unitOfWork.AdminRepository.Where(t => t.RefreshToken.Equals(refreshToken) && t.ActiveFlag).FirstOrDefaultAsync();
             if (admin == null) throw new DataMessageError(ErrorMessageConstant.RefreshTokenNotFound);
 
-            var accessToken = GenerateAccessToken(admin.Email, admin.Id, admin.Access.GetDisplayName());
+            var accessToken = GenerateAccessToken(admin.Email, admin.Id, admin.Access);
             return new AdminAccessResponseDTO()
             {
                 AccessToken = accessToken,
@@ -62,7 +63,8 @@ namespace LostFoundAngkasaPura.Service.Admin
                                 .Where(t =>
                                 (email == null || t.Email.Contains(email)) &&
                                 (access == null || t.Access.Equals(access)) &&
-                                (name == null || t.Name.Contains(name)));
+                                (name == null || t.Name.Contains(name)) &&
+                                t.ActiveFlag);
             var count = await query.CountAsync();
             var list = await query
                                 .Skip((page - 1) * size)
@@ -83,9 +85,13 @@ namespace LostFoundAngkasaPura.Service.Admin
         public async Task<AdminResponseDTO> CreateAdmin(AdminCreateRequestDTO request, string adminId)
         {
             bool isSuperAdmin = false;
-            if (request.Access.ToLower().Equals(AdminAccess.SuperAdmin.GetDisplayName().ToLower())) isSuperAdmin = true;
-            else if (request.Access.ToLower().Equals(AdminAccess.Admin.GetDisplayName().ToLower())) isSuperAdmin = false;
+            if (request.Access.ToLower().Equals(AdminAccess.SuperAdmin.ToLower())) isSuperAdmin = true;
+            else if (request.Access.ToLower().Equals(AdminAccess.Admin.ToLower())) isSuperAdmin = false;
             else throw new DataMessageError(ErrorMessageConstant.NotValidField("Access"));
+
+            bool isEmailUsed = await _unitOfWork.AdminRepository.Where(t => t.ActiveFlag && t.Email.ToLower().Equals(request.Email.ToLower())).AnyAsync();
+            if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
+
             var password = Utils.GeneralUtils.GetRandomPassword(10);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
             var refreshToken = await GenerateRefreshToken();
@@ -124,7 +130,7 @@ namespace LostFoundAngkasaPura.Service.Admin
                 _unitOfWork.AdminRepository.Update(admin);
                 await _unitOfWork.SaveAsync();
             }
-            var accessToken = GenerateAccessToken(admin.Email, admin.Id, admin.Access.GetDisplayName());
+            var accessToken = GenerateAccessToken(admin.Email, admin.Id, admin.Access);
             return new AdminAccessResponseDTO()
             {
                 AccessToken = accessToken,
@@ -135,11 +141,24 @@ namespace LostFoundAngkasaPura.Service.Admin
         public async Task LogoutAll(string userId)
         {
             var admin = await _unitOfWork.AdminRepository.Where(t => t.Id.Equals(userId) && t.ActiveFlag).FirstOrDefaultAsync();
-            if (admin == null) throw new DataMessageError(ErrorMessageConstant.EmailNotFound);
+            if (admin == null) throw new NotFoundError();
 
             admin.RefreshToken = await GenerateRefreshToken();
             _unitOfWork.AdminRepository.Update(admin);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<AdminResponseDTO> DeactivateAdmin(string adminId, string userId)
+        {
+            var admin = await _unitOfWork.AdminRepository.Where(t => t.Id.Equals(adminId) && t.ActiveFlag).FirstOrDefaultAsync();
+            if (admin == null) throw new NotFoundError();
+            admin.ActiveFlag = false;
+            admin.LastUpdatedDate = DateTime.Now;
+            admin.LastUpdatedBy = userId;
+            _unitOfWork.AdminRepository.Update(admin);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<AdminResponseDTO>(admin);
+
         }
 
         private string GenerateAccessToken(string email, string userId, string access)

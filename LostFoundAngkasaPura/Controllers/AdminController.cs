@@ -55,6 +55,18 @@ namespace LostFound.Controllers
             return new OkObjectResult(new DefaultResponse<AdminResponseDTO>(result));
         }
 
+        [HttpDelete("{adminId}")]
+        [ProducesResponseType(typeof(DefaultResponse<AdminResponseDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true, true)]
+        public async Task<IActionResult> DeactivateAdmin(
+            [FromRoute] string adminId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminService.DeactivateAdmin(adminId, userId);
+            return new OkObjectResult(new DefaultResponse<AdminResponseDTO>(result));
+        }
+
 
         [HttpPost("login")]
         [ProducesResponseType(typeof(AdminAccessResponseDTO), 200)]

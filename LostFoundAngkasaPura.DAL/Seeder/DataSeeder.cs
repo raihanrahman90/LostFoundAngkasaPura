@@ -11,9 +11,8 @@ namespace LostFoundAngkasaPura.DAL.Seeder
     {
         private readonly LostFoundDbContext lostFoundDbContext;
 
-        public DataSeeder(LostFoundDbContext lostFoundDbContext)
+        public DataSeeder()
         {
-            this.lostFoundDbContext = lostFoundDbContext;   
         }
 
         public void Seed()
@@ -23,7 +22,7 @@ namespace LostFoundAngkasaPura.DAL.Seeder
                 var admin = new Admin()
                 {
                     
-                   Access = AdminAccess.SuperAdmin,
+                   Access = "SuperAdmin",
                    ActiveFlag = true,
                    CreatedBy = "Seeder",
                    CreatedDate = DateTime.Now,

@@ -4,8 +4,8 @@
     {
         public class AdminAccess
         {
-            public string Admin = "Admin";
-            public string SuperAdmin = "SuperAdmin";
+            public static string Admin = "Admin";
+            public static string SuperAdmin = "SuperAdmin";
         }
     }
 }

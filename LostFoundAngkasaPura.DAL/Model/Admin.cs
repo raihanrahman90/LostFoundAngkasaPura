@@ -8,12 +8,8 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string Email { get; set; }
         public string Password { get; set; }
         public string Unit { get; set; }
-        public AdminAccess Access { get; set; } = AdminAccess.Admin;
+        public string Access { get; set; }
         public string RefreshToken { get; set; }
     }
 
-    public enum AdminAccess
-    {
-        Admin,SuperAdmin
-    }
 }

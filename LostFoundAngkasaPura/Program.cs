@@ -59,7 +59,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 string mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddTransient<DataSeeder>();
 builder.Services.AddDbContext<LostFoundDbContext>(p => p.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
 
 
@@ -106,18 +105,20 @@ builder.Services.AddCors(options =>
             .WithExposedHeaders("Content-Disposition");
         });
 });
+builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<JwtSecurityTokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSingleton<IMailerService, MailerService>();
+builder.Services.AddScoped<IMailerService, MailerService>();
 
 var app = builder.Build();
 var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
 using (var scope = scopedFactory.CreateScope())
 {
+    var serviceLain = scope.ServiceProvider.GetService<MailerService>();
     var service = scope.ServiceProvider.GetService<DataSeeder>();
-    service.Seed();
+    //service.Seed();
 }
 // Configure the HTTP request pipeline.
 app.UseSwagger();

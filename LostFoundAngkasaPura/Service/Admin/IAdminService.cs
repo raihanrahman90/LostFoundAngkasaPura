@@ -10,6 +10,7 @@ namespace LostFoundAngkasaPura.Service.Admin
         Task<Pagination<AdminResponseDTO>> GetListAdmin(int page, int size, string? email, string? access, string? name);
         Task<AdminResponseDTO> CreateAdmin(AdminCreateRequestDTO request, string adminId);
         Task<AdminResponseDTO> GetDetailAdmin(string adminId);
+        Task<AdminResponseDTO> DeactivateAdmin(string adminId, string userId);
         Task LogoutAll(string userId);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using LostFoundAngkasaPura.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LostFoundAngkasaPura.DAL.Migrations
 {
     [DbContext(typeof(LostFoundDbContext))]
-    partial class LostFoundDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230730032041_add_found_date_at_item_found")]
+    partial class add_found_date_at_item_found
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +69,7 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("admin", (string)null);
+                    b.ToTable("admin");
                 });
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.ItemCategory", b =>
@@ -98,7 +100,7 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("item_category", (string)null);
+                    b.ToTable("item_category");
                 });
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.ItemFound", b =>
@@ -154,7 +156,7 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.ToTable("item_found", (string)null);
+                    b.ToTable("item_found");
                 });
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.User", b =>
@@ -200,7 +202,7 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("user", (string)null);
+                    b.ToTable("user");
                 });
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.ItemFound", b =>

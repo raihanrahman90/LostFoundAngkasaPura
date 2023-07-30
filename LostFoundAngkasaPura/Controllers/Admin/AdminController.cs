@@ -1,12 +1,13 @@
 ﻿using LostFound.Authorize;
+using LostFoundAngkasaPura.Controllers.User;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
 using LostFoundAngkasaPura.Service.Admin;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LostFound.Controllers
+namespace LostFoundAngkasaPura.Controllers.Admin
 {
-    [Route("[controller]")]
+    [Route("Admin/Admin")]
     [ApiController]
     public class AdminController : ControllerBase
     {

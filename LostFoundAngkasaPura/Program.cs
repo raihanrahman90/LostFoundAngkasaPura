@@ -17,6 +17,9 @@ using System.Net;
 using System.Text;
 using LostFoundAngkasaPura.Service.Admin;
 using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Service.ItemFound;
+using LostFoundAngkasaPura.Service.ItemCategory;
+using LostFoundAngkasaPura.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,6 +112,10 @@ builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<JwtSecurityTokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<UploadLocation>();
+builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
+builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();
 

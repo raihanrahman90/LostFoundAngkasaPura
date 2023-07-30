@@ -16,6 +16,8 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public UnitOfWork(LostFoundDbContext dbContext, IConfiguration configuration)
         {
             this.AdminRepository = dbContext.admin;
+            this.ItemCategoryRepository = dbContext.item_category;
+            this.ItemFoundRepository = dbContext.item_found;
             this.UserRepository = dbContext.user;
             this.dbContext = dbContext;
         }

@@ -2,6 +2,6 @@
 {
     public interface IMailerService
     {
-        public Task CreateAdmin(string email, string name, string password);
+        Task CreateAdmin(string email, string name, string password);
     }
 }

@@ -18,6 +18,10 @@
 
         public static string UserNotFound = "User not found";
 
+        public static string ImageNotValid = "Image that you upload isn't valid";
+
+        public static string ImageEmpty = "Please upload an image";
+
         public static string NotValidField(string field) { return $"Not valid field {field}'"; }
     }
 }

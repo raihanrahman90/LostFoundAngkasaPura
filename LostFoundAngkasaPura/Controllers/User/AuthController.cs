@@ -4,7 +4,7 @@ using LostFoundAngkasaPura.DTO.Auth;
 using LostFoundAngkasaPura.Service.Auth;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LostFound.Controllers
+namespace LostFoundAngkasaPura.Controllers.User
 {
     [Route("[controller]")]
     [ApiController]

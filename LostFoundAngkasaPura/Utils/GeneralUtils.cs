@@ -1,4 +1,5 @@
 ﻿using LostFoundAngkasaPura.DTO.Error;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text;
 
 namespace LostFoundAngkasaPura.Utils
@@ -25,5 +26,28 @@ namespace LostFoundAngkasaPura.Utils
 
             return sb.ToString();
         }
+
+        public static string UploadFile(string base64, string location)
+        {
+            if (File.Exists(location)) File.Delete(location);
+            byte[] imageByte = Convert.FromBase64String(base64);
+            File.WriteAllBytes(location, imageByte);
+            return location;
+        }
+
+        public static (string, string) GetDetailImageBase64(string base64)
+        {
+            try
+            {
+                var extension = base64.Split(';')[0].Split('/')[1];
+                var image = base64.Split(',')[1];
+                return (extension, image);
+            }catch(Exception e)
+            {
+                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+            }
+        }
+
+
     }
 }

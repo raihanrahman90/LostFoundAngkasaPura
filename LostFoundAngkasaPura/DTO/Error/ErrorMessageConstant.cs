@@ -2,26 +2,26 @@
 {
     public class ErrorMessageConstant
     {
-        public static string EmailNotFound = "Email Not Found";
-        public static string PasswordWrong = "Wrong Password";
+        public static string EmailNotFound = "Email tidak terhubung pada akun manapun";
+        public static string PasswordWrong = "Password yang Anda masukkan salah";
 
-        public static string EmailAlreadyExist = "Email Already Used";
-        public static string RefreshTokenNotFound = "Refresh Token Not Found";
-        public static string RefreshTokenExpired = "Refresh Token Expired";
+        public static string EmailAlreadyExist = "Email telah digunakan oleh akun lain";
+        public static string RefreshTokenNotFound = "Mohon login kembali";
+        public static string RefreshTokenExpired = "Mohon login kembali";
 
-        public static string FieldNotFound = "Field Not Found";
-        public static string DataNotFound = "Data Not Found";
+        public static string DataNotFound = "Data tidak ditemukan";
 
-        public static string DataSentNotValid = "The data isn't valid, please contact the developer";
+        public static string DataSentNotValid = "Data yang Anda kirim tidak valid, mohon hubungi developer";
 
-        public static string UploadFile = "Failed upload file, please contact the developer";
+        public static string UploadFile = "Gagal meng-upload file, mohon hubungi developer";
 
-        public static string UserNotFound = "User not found";
+        public static string UserNotFound = "User tidak ditemukan";
 
-        public static string ImageNotValid = "Image that you upload isn't valid";
+        public static string ImageNotValid = "File yang Anda upload tidak valid";
 
-        public static string ImageEmpty = "Please upload an image";
+        public static string ImageEmpty = "Mohon upload gambar";
 
-        public static string NotValidField(string field) { return $"Not valid field {field}'"; }
+        public static string NotValidField(string field) { return $"Data pada '{field}' tidak valid"; }
+        public static string ItemInClaimProgress = "Item tersebut sudah dalam proses claim";
     }
 }

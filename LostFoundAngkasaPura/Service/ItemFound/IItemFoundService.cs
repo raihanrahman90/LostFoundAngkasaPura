@@ -9,5 +9,6 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         Task<ItemFoundResponseDTO> GetDetailItemFound(string itemFoundId);
         Task<ItemFoundResponseDTO> CreateItemFound(ItemFoundCreateRequestDTO request, string adminId);
         Task<ItemFoundResponseDTO> UpdateItemFound(ItemFoundCreateRequestDTO request, string itemFoundId, string adminId);
+        Task<ItemFoundResponseDTO> UpdateStatus(string status, string itemFoundId);
     }
 }

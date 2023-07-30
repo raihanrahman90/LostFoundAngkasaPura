@@ -2,6 +2,7 @@
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
+using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.Mailer;
@@ -68,6 +69,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         public async Task<ItemFoundResponseDTO> GetDetailItemFound(string itemFoundId)
         {
             var result = await _unitOfWork.ItemFoundRepository.Where(t => t.Id.Equals(itemFoundId)).Select(t => _mapper.Map<ItemFoundResponseDTO>(t)).FirstOrDefaultAsync();
+            if (result == null) throw new NotFoundError();
             return result;
         }
 
@@ -94,6 +96,17 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         public Task<ItemFoundResponseDTO> UpdateItemFound(ItemFoundCreateRequestDTO request, string itemFoundId, string adminId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ItemFoundResponseDTO> UpdateStatus(string status, string itemFoundId)
+        {
+            var item = await _unitOfWork.ItemFoundRepository.FirstOrDefaultAsync(t => t.Id.Equals(itemFoundId));
+            if (item == null) throw new NotFoundError();
+            item.Status = status;
+            item.LastUpdatedDate = DateTime.Now;
+            _unitOfWork.ItemFoundRepository.Update(item);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ItemFoundResponseDTO>(item);
         }
     }
 }

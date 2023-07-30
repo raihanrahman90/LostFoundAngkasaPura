@@ -1,30 +1,33 @@
 ﻿using LostFound.Authorize;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.ItemCategory;
+using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
 using LostFoundAngkasaPura.Service.ItemCategory;
+using LostFoundAngkasaPura.Service.ItemClaim;
 using LostFoundAngkasaPura.Service.ItemFound;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static LostFoundAngkasaPura.Constant.Constant;
 
-namespace LostFoundAngkasaPura.Controllers.Admin
+namespace LostFoundAngkasaPura.Controllers
 {
-    [Route("Admin/Item-Found")]
+    [Route("Item-Found")]
     [ApiController]
     public class ItemFoundController : ControllerBase
     {
         private readonly IItemCategoryService _itemCategory;
         private readonly IItemFoundService _itemFound;
-        public ItemFoundController(IItemFoundService itemFound, IItemCategoryService itemCategory)
+        private readonly IItemClaimService _itemClaim;
+        public ItemFoundController(IItemFoundService itemFound, IItemCategoryService itemCategory, IItemClaimService itemClaim)
         {
             _itemCategory = itemCategory;
             _itemFound = itemFound;
+            _itemClaim = itemClaim; 
         }
 
         [HttpGet("category")]
         [ProducesResponseType(typeof(DefaultResponse<List<ItemCategoryResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
         public async Task<IActionResult> GetListCategory()
         {
             var result = await _itemCategory.GetListCategory();
@@ -34,30 +37,15 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpGet]
         [ProducesResponseType(typeof(DefaultResponse<Pagination<ItemFoundResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
         public async Task<IActionResult> GetListItemFound(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
             [FromQuery] string? name = null,
             [FromQuery] string? category = null,
-            [FromQuery] string? status = null,
             [FromQuery] DateTime? foundDate = null)
         {
-            var result = await _itemFound.GetListItemFound(page, size, name, category, status, foundDate);
+            var result = await _itemFound.GetListItemFound(page, size, name, category, ItemFoundStatus.Found, foundDate);
             return new OkObjectResult(new DefaultResponse<Pagination<ItemFoundResponseDTO>>(result));
-        }
-
-
-        [HttpPost]
-        [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
-        [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
-        public async Task<IActionResult> CreateItemFound(
-            [FromBody] ItemFoundCreateRequestDTO request)
-        {
-            var userId = User.Claims.FirstOrDefault(t => t.Type.Equals("Id")).Value;
-            var result = await _itemFound.CreateItemFound(request, userId);
-            return new OkObjectResult(new DefaultResponse<ItemFoundResponseDTO>(result));
         }
 
         [HttpGet("{itemId}")]

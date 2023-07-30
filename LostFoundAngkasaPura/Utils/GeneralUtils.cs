@@ -41,6 +41,8 @@ namespace LostFoundAngkasaPura.Utils
             {
                 var extension = base64.Split(';')[0].Split('/')[1];
                 var image = base64.Split(',')[1];
+                if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
+                    throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
                 return (extension, image);
             }catch(Exception e)
             {

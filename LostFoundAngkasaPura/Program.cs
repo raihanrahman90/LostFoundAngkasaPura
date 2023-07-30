@@ -20,6 +20,7 @@ using LostFoundAngkasaPura.Service.Mailer;
 using LostFoundAngkasaPura.Service.ItemFound;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Utils;
+using LostFoundAngkasaPura.Service.ItemClaim;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,8 +115,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<UploadLocation>();
-builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
 builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
+builder.Services.AddScoped<IItemClaimService, ItemClaimService>();
+builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();
 

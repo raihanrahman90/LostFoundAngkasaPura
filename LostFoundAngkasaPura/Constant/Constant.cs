@@ -12,11 +12,13 @@
 
         public class ItemFoundStatus
         {
-            public static string Found = "Found";
-            public static string Confirmation = "Confirmation";
-            public static string Confirmated = "Confirmated";
-            public static string Claimed = "Claimed";
-            public static string Closed = "Closed";
+            public readonly static string Found = "Found";
+            public readonly static string Confirmation = "Confirmation";
+            public readonly static string Confirmed = "Confirmed";
+            public readonly static string Claimed = "Claimed";
+            public readonly static string Closed = "Closed";
+            public readonly static string Approved = "Approved";
+            public readonly static string Rejected = "Rejected";
         }
     }
 }

@@ -15,6 +15,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
     {
         private readonly IItemCategoryService _itemCategory;
         private readonly IItemFoundService _itemFound;
+
         public ItemFoundController(IItemFoundService itemFound, IItemCategoryService itemCategory)
         {
             _itemCategory = itemCategory;
@@ -24,7 +25,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpGet("category")]
         [ProducesResponseType(typeof(DefaultResponse<List<ItemCategoryResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
+        [CustomAuthorize(true, false)]
         public async Task<IActionResult> GetListCategory()
         {
             var result = await _itemCategory.GetListCategory();
@@ -34,7 +35,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpGet]
         [ProducesResponseType(typeof(DefaultResponse<Pagination<ItemFoundResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
+        [CustomAuthorize(true, false)]
         public async Task<IActionResult> GetListItemFound(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
@@ -51,7 +52,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpPost]
         [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
+        [CustomAuthorize(true, false)]
         public async Task<IActionResult> CreateItemFound(
             [FromBody] ItemFoundCreateRequestDTO request)
         {
@@ -63,13 +64,38 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpGet("{itemId}")]
         [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
+        [CustomAuthorize(true, false)]
         public async Task<IActionResult> GetDetailItem(
             [FromRoute] string itemId)
         {
             var result = await _itemFound.GetDetailItemFound(itemId);
             return new OkObjectResult(new DefaultResponse<ItemFoundResponseDTO>(result));
         }
+
+
+        [HttpGet("{itemId}/Claim")]
+        [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true, false)]
+        public async Task<IActionResult> GetListClaimItem(
+            [FromRoute] string itemId)
+        {
+            var result = await _itemFound.GetDetailItemFound(itemId);
+            return new OkObjectResult(new DefaultResponse<ItemFoundResponseDTO>(result));
+        }
+
+        [HttpPost("{itemId}/Closed")]
+        [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true, false)]
+        public async Task<IActionResult> ClosedItemFound(
+            [FromRoute] string itemId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _itemFound.ClosedItem(itemId, userId);
+            return new OkObjectResult(new DefaultResponse<ItemFoundResponseDTO>(result));
+        }
+
 
     }
 }

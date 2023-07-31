@@ -7,10 +7,14 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public string Image { get; set; }
+        public string Status { get; set; }
         public string IdentityNumber { get; set; }
         public string IdentityType { get; set; }
         public string ProofImage { get; set; }
         public string ProofDescription { get; set; }
+        public string? ClaimLocation { get; set; }
+        public DateTime? ClaimDate { get; set; }
+        public string? RejectReason { get; set; }
 
     }
 }

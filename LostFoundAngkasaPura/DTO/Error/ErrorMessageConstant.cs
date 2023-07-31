@@ -21,6 +21,9 @@
 
         public static string ImageEmpty = "Mohon upload gambar";
 
+        public static string ClaimApprovedRejectOnlyConfirmation = "Hanya dapat melakukan approve/reject terhadap penyajuan klaim dengan status 'Confirmation'";
+        public static string ItemApprovedRejectOnlyConfirmation = "Hanya dapat melakukan approve/reject terhadap item dengan status 'Confirmation'";
+
         public static string NotValidField(string field) { return $"Data pada '{field}' tidak valid"; }
         public static string ItemInClaimProgress = "Item tersebut sudah dalam proses claim";
     }

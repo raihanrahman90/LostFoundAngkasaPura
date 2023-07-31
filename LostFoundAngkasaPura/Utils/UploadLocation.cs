@@ -4,11 +4,13 @@
     {
         private string _uploadLocation;
         private string _urlStatic;
+        private string _urlWebsite;
 
         public UploadLocation(IConfiguration configuration)
         {
             _uploadLocation = configuration.GetValue<string>("Base:Location");
             _urlStatic = configuration.GetValue<string>("Base:Url");
+            _urlWebsite = configuration.GetValue<string>("Base:Website");
         }
 
         public string Url(string path)
@@ -34,6 +36,11 @@
         public string ComentarLocation(string fileName)
         {
             return $"comentar/{fileName}";
+        }
+
+        public string WebsiteUrl(string path)
+        {
+            return $"{_urlWebsite}/{path}";
         }
     }
 }

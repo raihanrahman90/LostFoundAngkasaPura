@@ -3,6 +3,7 @@ using System;
 using LostFoundAngkasaPura.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LostFoundAngkasaPura.DAL.Migrations
 {
     [DbContext(typeof(LostFoundDbContext))]
-    partial class LostFoundDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230731062550_add_reject_reason_at_item_claim")]
+    partial class add_reject_reason_at_item_claim
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

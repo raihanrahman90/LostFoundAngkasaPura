@@ -33,6 +33,14 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             _uploadLocation = uploadLocation;
         }
 
+        public async Task<ItemFoundResponseDTO> ClosedItem(string itemFoundId, string userId)
+        {
+            var itemFound = await _unitOfWork.ItemFoundRepository.Where(t=>t.Id.Equals(itemFoundId)).FirstOrDefaultAsync();
+            if (itemFound == null) throw new NotFoundError();
+            var response = await UpdateStatus(ItemFoundStatus.Closed, userId, itemFound);
+            return response;
+        }
+
         public async Task<ItemFoundResponseDTO> CreateItemFound(ItemFoundCreateRequestDTO request, string adminId)
         {
             var isUploadImage = String.IsNullOrWhiteSpace(request.ImageBase64);
@@ -98,15 +106,14 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             throw new NotImplementedException();
         }
 
-        public async Task<ItemFoundResponseDTO> UpdateStatus(string status, string itemFoundId)
+        public async Task<ItemFoundResponseDTO> UpdateStatus(string status, string userId, DAL.Model.ItemFound itemFound)
         {
-            var item = await _unitOfWork.ItemFoundRepository.FirstOrDefaultAsync(t => t.Id.Equals(itemFoundId));
-            if (item == null) throw new NotFoundError();
-            item.Status = status;
-            item.LastUpdatedDate = DateTime.Now;
-            _unitOfWork.ItemFoundRepository.Update(item);
+            itemFound.Status = status;
+            itemFound.LastUpdatedDate = DateTime.Now;
+            itemFound.LastUpdatedBy = userId;
+            _unitOfWork.ItemFoundRepository.Update(itemFound);
             await _unitOfWork.SaveAsync();
-            return _mapper.Map<ItemFoundResponseDTO>(item);
+            return _mapper.Map<ItemFoundResponseDTO>(itemFound);
         }
     }
 }

@@ -22,6 +22,21 @@ namespace LostFoundAngkasaPura.Service.Mailer
             UrlWebsite = configuration.GetValue<string>("Base:Website");
         }
 
+        public async Task ApproveClaim(string email, string location, DateTime date, string url)
+        {
+            var subject = "Lost & Found SAMS Sepinggan Login Credential";
+            var body = "" +
+                "<p>" +
+                "Proses klaim barang Anda telah di-approve oleh Admin Lost & Found Bandara SAMS Sepinggan Balikpapan, " +
+                $"pengambilan dapat dilakukan pada lokasi dan tempat sebagai berikut" +
+                "</p>" +
+                $"<p>Lokasi : {location}</p>" +
+                $"<p>Tanggal: {date.ToString("yyyy-MM-dd HH:mm:ss")}</p>" +
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{UrlWebsite}'>link</a>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
         public async Task CreateAdmin(string email, string name, string password)
         {
             var subject = "Lost & Found SAMS Sepinggan Login Credential";
@@ -30,8 +45,22 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "Email Anda telah terdaftar sebagai Admin pada akun Lost & Found Bandara SAMS Sepinggan Balikpapan, " +
                 $"silahkan login pada <a href='{UrlWebsite  }'>link</a> dengan menggunakan authentication berikut" +
                 "</p>" +
-                $"Email: {email}</br>" +
-                $"Password: {password}";
+                $"<p>Email: {email}</p>" +
+                $"<p>Password: {password}</p>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
+        public async Task RejectClaim(string email, string reason, string url)
+        {
+            var subject = "Lost & Found SAMS Sepinggan Login Credential";
+            var body = "" +
+                "<p>" +
+                "Proses klaim barang Anda telah ditolak oleh Admin Lost & Found Bandara SAMS Sepinggan Balikpapan " +
+                "dengan alasan sebagai berikut" +
+                "</p>" +
+                $"<p>Alasan : {reason}</p>" +
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{UrlWebsite}'>link</a>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }

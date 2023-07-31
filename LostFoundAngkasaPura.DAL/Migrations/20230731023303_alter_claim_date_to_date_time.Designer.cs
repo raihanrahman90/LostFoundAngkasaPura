@@ -3,6 +3,7 @@ using System;
 using LostFoundAngkasaPura.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LostFoundAngkasaPura.DAL.Migrations
 {
     [DbContext(typeof(LostFoundDbContext))]
-    partial class LostFoundDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230731023303_alter_claim_date_to_date_time")]
+    partial class alter_claim_date_to_date_time
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,9 +149,6 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.Property<string>("ProofImage")
                         .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("RejectReason")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Status")

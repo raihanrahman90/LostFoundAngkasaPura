@@ -170,6 +170,7 @@ app.UseExceptionHandler(c => c.Run(async context =>
 
 }));
 app.UseRouting();
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

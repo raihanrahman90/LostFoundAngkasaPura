@@ -98,8 +98,14 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             itemClaim.Status = ItemFoundStatus.Approved;
             itemClaim.LastUpdatedBy = userId;
             itemClaim.LastUpdatedDate = DateTime.Now;
-            itemClaim.ClaimLocation = request.ClaimLocation;
-            itemClaim.ClaimDate = request.ClaimDate;
+            DAL.Model.ItemClaimApproval approval = new ItemClaimApproval()
+            {
+                ActiveFlag = true,
+                Status = ItemFoundStatus.Rejected,
+                ClaimDate = request.ClaimDate,
+                ClaimLocation = request.ClaimLocation,
+            };
+            _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);
             await _unitOfWork.SaveAsync();
             var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
@@ -153,9 +159,6 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                                     Name = t.ItemFound.Name,
                                     ProofImage = _uploadLocation.Url(t.ProofImage),
                                     ItemFoundId = t.ItemFoundId,
-                                    ClaimDate = t.ClaimDate,
-                                    ClaimLocation = t.ClaimLocation,
-                                    RejectReason = t.RejectReason,
                                     Status = t.Status
                                 }).ToListAsync();
             return new Pagination<ItemClaimResponseDTO>(data, count, size, page);
@@ -175,7 +178,13 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             itemClaim.Status = ItemFoundStatus.Rejected;
             itemClaim.LastUpdatedBy = userId;
             itemClaim.LastUpdatedDate = DateTime.Now;
-            itemClaim.RejectReason = request.RejectReason;
+            DAL.Model.ItemClaimApproval approval = new ItemClaimApproval()
+            {
+                ActiveFlag = true,
+                Status = ItemFoundStatus.Rejected,
+                RejectReason = request.RejectReason
+            };
+            _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);
             await _unitOfWork.SaveAsync();
             var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
@@ -186,5 +195,6 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             _mailerService.RejectClaim(itemClaim.User.Email, request.RejectReason, _uploadLocation.WebsiteUrl(itemClaimId));
             return result;
         }
+
     }
 }

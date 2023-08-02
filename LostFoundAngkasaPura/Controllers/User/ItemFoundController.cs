@@ -51,7 +51,6 @@ namespace LostFoundAngkasaPura.Controllers
         [HttpGet("{itemId}")]
         [ProducesResponseType(typeof(DefaultResponse<ItemFoundResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
-        [CustomAuthorize(true, true)]
         public async Task<IActionResult> GetDetailItem(
             [FromRoute] string itemId)
         {

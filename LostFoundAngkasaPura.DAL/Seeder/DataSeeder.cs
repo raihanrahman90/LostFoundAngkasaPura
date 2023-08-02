@@ -11,8 +11,9 @@ namespace LostFoundAngkasaPura.DAL.Seeder
     {
         private readonly LostFoundDbContext lostFoundDbContext;
 
-        public DataSeeder()
+        public DataSeeder(LostFoundDbContext lostFoundDbContext)
         {
+            this.lostFoundDbContext = lostFoundDbContext;
         }
 
         public void Seed()

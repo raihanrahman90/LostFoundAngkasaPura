@@ -127,7 +127,7 @@ using (var scope = scopedFactory.CreateScope())
 {
     var serviceLain = scope.ServiceProvider.GetService<MailerService>();
     var service = scope.ServiceProvider.GetService<DataSeeder>();
-    //service.Seed();
+    service.Seed();
 }
 // Configure the HTTP request pipeline.
 app.UseSwagger();

@@ -13,7 +13,7 @@ using System.Drawing;
 using System.Xml.Linq;
 using static LostFoundAngkasaPura.Constant.Constant;
 
-namespace LostFoundAngkasaPura.Controllers
+namespace LostFoundAngkasaPura.Controllers.User
 {
     [Route("Item-Claim")]
     [ApiController]

@@ -9,6 +9,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
         public DbSet<ItemClaim> ItemClaimRepository { get; set; }
         public DbSet<ItemClaimApproval> ItemClaimApprovalRepository { get; set; }
+        public DbSet<ItemComment> ItemCommentRepository { get; set; }
         public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
         Task SaveAsync();

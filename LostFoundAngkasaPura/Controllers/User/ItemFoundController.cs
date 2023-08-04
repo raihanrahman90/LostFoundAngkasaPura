@@ -1,7 +1,5 @@
-﻿using LostFound.Authorize;
-using LostFoundAngkasaPura.DTO;
+﻿using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.ItemCategory;
-using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.ItemClaim;
@@ -9,7 +7,7 @@ using LostFoundAngkasaPura.Service.ItemFound;
 using Microsoft.AspNetCore.Mvc;
 using static LostFoundAngkasaPura.Constant.Constant;
 
-namespace LostFoundAngkasaPura.Controllers
+namespace LostFoundAngkasaPura.Controllers.User
 {
     [Route("Item-Found")]
     [ApiController]

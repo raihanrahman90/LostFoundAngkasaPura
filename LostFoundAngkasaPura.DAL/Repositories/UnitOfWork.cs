@@ -12,6 +12,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
         public DbSet<ItemClaim> ItemClaimRepository { get; set; }
         public DbSet<ItemClaimApproval> ItemClaimApprovalRepository { get; set; }
+        public DbSet<ItemComment> ItemCommentRepository { get; set; }
         public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
 
@@ -21,6 +22,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
             this.ItemCategoryRepository = dbContext.item_category;
             this.ItemClaimRepository = dbContext.item_claim;
             this.ItemClaimApprovalRepository = dbContext.item_claim_approval;
+            this.ItemCommentRepository = dbContext.item_comment;
             this.ItemFoundRepository = dbContext.item_found;
             this.UserRepository = dbContext.user;
             this.dbContext = dbContext;

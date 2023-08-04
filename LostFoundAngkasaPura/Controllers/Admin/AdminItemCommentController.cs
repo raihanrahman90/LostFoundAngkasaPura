@@ -4,23 +4,23 @@ using LostFoundAngkasaPura.DTO.ItemComment;
 using LostFoundAngkasaPura.Service.ItemComment;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LostFoundAngkasaPura.Controllers.User
+namespace LostFoundAngkasaPura.Controllers.Admin
 {
     [Route("Item-Comment")]
     [ApiController]
-    public class ItemCommentController : ControllerBase
+    public class AdminItemCommentController : ControllerBase
     {
 
         private readonly IItemCommentService _itemComment;
 
-        public ItemCommentController(IItemCommentService itemComment)
+        public AdminItemCommentController(IItemCommentService itemComment)
         {
             _itemComment = itemComment;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(List<ItemCommentResponseDTO>), 200)]
-        [CustomAuthorize(false, false)]
+        [CustomAuthorize(true, true)]
         public async Task<IActionResult> GetListComment([FromQuery] string itemClaimId)
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
@@ -34,7 +34,7 @@ namespace LostFoundAngkasaPura.Controllers.User
         public async Task<IActionResult> CreateComment([FromBody] ItemCommentCreateRequestDTO request)
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
-            var result = await _itemComment.AddComment(request, userId, null);
+            var result = await _itemComment.AddComment(request, null, userId);
             return new OkObjectResult(new DefaultResponse<ItemCommentResponseDTO>(result));
         }
 

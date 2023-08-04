@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LostFoundAngkasaPura.Controllers.Admin
 {
-    [Route("Item-Comment")]
+    [Route("Admin/Item-Comment")]
     [ApiController]
     public class AdminItemCommentController : ControllerBase
     {

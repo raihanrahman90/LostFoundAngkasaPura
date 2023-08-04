@@ -19,7 +19,11 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             _uploadLocation = uploadLocation;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
-                t.CreateMap<DAL.Model.ItemComment, ItemCommentResponseDTO>();
+                t.CreateMap<DAL.Model.ItemComment, ItemCommentResponseDTO>()
+                .ForMember(t=>t.Image, t=>t.MapFrom(t=>_uploadLocation.Url(t.ImageLocation)))
+                .ForMember(t=>t.UserName, t => t.MapFrom(t => t.UserId==null?t.Admin.Name:t.User.Name))
+                .ForMember(t=>t.UserStatus, t=>t.MapFrom(t => t.UserId == null?"Admin":"User"));
+                
             }));
         }
 
@@ -36,7 +40,7 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             if (!String.IsNullOrWhiteSpace(request.ImageBase64))
             {
                 var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ImageBase64);
-                var fileName = $"{userId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
+                var fileName = $"{request.ItemClaimId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
                 var fileLocation = _uploadLocation.ComentarLocation(fileName);
                 Utils.GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
                comment.ImageLocation = fileLocation;
@@ -48,7 +52,10 @@ namespace LostFoundAngkasaPura.Service.ItemComment
 
         public async Task<List<ItemCommentResponseDTO>> GetComment(string itemClaimId)
         {
-            var result = await _unitOfWork.ItemCommentRepository.Where(t => t.ItemClaimId.Equals(itemClaimId) && t.ActiveFlag)
+            var result = await _unitOfWork.ItemCommentRepository
+                .Include(t=>t.User)
+                .Include(t=>t.Admin)
+                .Where(t => t.ItemClaimId.Equals(itemClaimId) && t.ActiveFlag)
                 .Select(t => _mapper.Map<ItemCommentResponseDTO>(t)).ToListAsync();
             return result;
         }

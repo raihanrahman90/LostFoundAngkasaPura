@@ -136,7 +136,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                                     .Include(t => t.ItemFound)
                                     .Where(t =>
                                     t.ActiveFlag &&
-                                    t.ItemFoundId.Equals(itemFoundId)
+                                    (itemFoundId == null || t.ItemFoundId.Equals(itemFoundId))
                                     )
                                     .OrderByDescending(t =>t.CreatedDate);
             return await ConvertToResponse(query, page, size);

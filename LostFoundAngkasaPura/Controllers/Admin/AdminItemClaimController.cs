@@ -23,7 +23,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [ProducesResponseType(typeof(string), 400)]
         [CustomAuthorize(true, false)]
         public async Task<IActionResult> GetListItemFound(
-            [FromQuery] string itemFoundId,
+            [FromQuery] string? itemFoundId=null,
             [FromQuery] int page = 1,
             [FromQuery] int size = 10)
         {

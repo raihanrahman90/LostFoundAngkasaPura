@@ -22,6 +22,7 @@ using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Utils;
 using LostFoundAngkasaPura.Service.ItemClaim;
 using LostFoundAngkasaPura.Service.ItemComment;
+using LostFoundAngkasaPura.Service.Dashboard;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -115,13 +116,15 @@ builder.Services.AddScoped<JwtSecurityTokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSingleton<UploadLocation>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
 builder.Services.AddScoped<IItemClaimService, ItemClaimService>();
 builder.Services.AddScoped<IItemCommentService, ItemCommentService>();
 builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();
+builder.Services.AddSingleton<UploadLocation>();
+
 
 var app = builder.Build();
 var scopedFactory = app.Services.GetService<IServiceScopeFactory>();

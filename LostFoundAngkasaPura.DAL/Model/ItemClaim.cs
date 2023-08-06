@@ -15,8 +15,5 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string IdentityType { get; set; }
         public string IdentityNumber { get; set; }
         public string Status { get; set; }
-        public string? ClaimLocation { get; set; }
-        public DateTime? ClaimDate { get; set; }
-        public string? RejectReason { get; set; }
     }
 }

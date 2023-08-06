@@ -25,12 +25,24 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [ProducesResponseType(typeof(DefaultResponse<Pagination<AdminResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
         [CustomAuthorize(true)]
-        public async Task<IActionResult> GetListAdmin(
+        public async Task<IActionResult> GetDataDashboard(
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null)
         {
             var result = await _dashboardService.GetDashboardData(startDate, endDate);
             return new OkObjectResult(new DefaultResponse<DashboardData>(result));
+        }
+
+        [HttpGet("grafik")]
+        [ProducesResponseType(typeof(DefaultResponse<Pagination<AdminResponseDTO>>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true)]
+        public async Task<IActionResult> GetGrafikDashboard(
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            var result = await _dashboardService.GetGrafikData(startDate, endDate);
+            return new OkObjectResult(new DefaultResponse<DashboardGrafikData>(result));
         }
 
     }

@@ -26,5 +26,6 @@
 
         public static string NotValidField(string field) { return $"Data pada '{field}' tidak valid"; }
         public static string ItemInClaimProgress = "Item tersebut sudah dalam proses claim";
+        public static string PleaseFillBothDate = "Mohon isi startDate dan endDate";
     }
 }

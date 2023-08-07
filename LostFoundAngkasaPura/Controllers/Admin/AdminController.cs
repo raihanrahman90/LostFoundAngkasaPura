@@ -80,7 +80,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
                     HttpOnly = true,
                     IsEssential = true,
                     SameSite = SameSiteMode.None,
-                    Secure = true
+                    Secure = HttpContext.Request.Scheme == "https",
                 });
             return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
         }

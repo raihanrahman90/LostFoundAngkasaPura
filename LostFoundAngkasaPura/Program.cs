@@ -105,12 +105,12 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-            .WithOrigins("http://localhost:3000", "https://loclahost:3000")
+            .AllowAnyOrigin()
+            //.WithOrigins("http://localhost:3000", "https://loclahost:3000")
             //            .WithMethods("PUT", "POST", "GET","OPTIONS", "DELETE")
             .AllowAnyMethod()
             .WithHeaders("Authorization", "Content-Type", "Cookies")
-            .WithExposedHeaders("Content-Disposition")
-            .AllowCredentials();
+            .WithExposedHeaders("Content-Disposition");
         });
 });
 builder.Services.AddScoped<DataSeeder>();

@@ -104,11 +104,13 @@ builder.Services.AddCors(options =>
         name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy
+            .WithOrigins("http://localhost:3000", "https://loclahost:3000")
             //            .WithMethods("PUT", "POST", "GET","OPTIONS", "DELETE")
             .AllowAnyMethod()
-            .WithHeaders("Authorization", "Content-Type")
-            .WithExposedHeaders("Content-Disposition");
+            .WithHeaders("Authorization", "Content-Type", "Cookies")
+            .WithExposedHeaders("Content-Disposition")
+            .AllowCredentials();
         });
 });
 builder.Services.AddScoped<DataSeeder>();
@@ -176,7 +178,6 @@ app.UseExceptionHandler(c => c.Run(async context =>
 }));
 app.UseRouting();
 app.UseCors(MyAllowSpecificOrigins);
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

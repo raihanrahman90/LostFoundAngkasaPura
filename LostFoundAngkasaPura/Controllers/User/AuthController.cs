@@ -60,7 +60,14 @@ namespace LostFoundAngkasaPura.Controllers.User
         [CustomAuthorize]
         public IActionResult Logout()
         {
-            HttpContext.Response.Cookies.Delete("refreshToken");
+            HttpContext.Response.Cookies.Append("refreshToken", "",
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.Now.AddDays(-1)
+                });
             return new OkObjectResult(new DefaultResponse<string>(""));
         }
 

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
@@ -7,7 +6,6 @@ using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.Service.Mailer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;

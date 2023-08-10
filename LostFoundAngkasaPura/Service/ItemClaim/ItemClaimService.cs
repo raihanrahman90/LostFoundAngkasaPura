@@ -196,5 +196,25 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             return result;
         }
 
+        public async Task<ItemClaimResponseDTO> GetItemClaimDetail(string itemClaimId)
+        {
+            var result = await _unitOfWork.ItemClaimRepository
+                                    .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
+                                    .Select(t => new ItemClaimResponseDTO()
+                                    {
+                                        Id = t.Id,
+                                        ProofDescription = t.ProofDescription,
+                                        IdentityNumber = t.IdentityNumber,
+                                        IdentityType = t.IdentityType,
+                                        Description = t.ItemFound.Description,
+                                        Image = _uploadLocation.Url(t.ItemFound.Image),
+                                        Name = t.ItemFound.Name,
+                                        ProofImage = _uploadLocation.Url(t.ProofImage),
+                                        ItemFoundId = t.ItemFoundId,
+                                        Status = t.Status
+                                    }).FirstOrDefaultAsync();
+            if (result == null) throw new NotFoundError();
+            return result;
+        }
     }
 }

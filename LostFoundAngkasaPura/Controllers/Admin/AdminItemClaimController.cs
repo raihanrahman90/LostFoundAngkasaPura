@@ -22,13 +22,24 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [ProducesResponseType(typeof(DefaultResponse<Pagination<ItemClaimResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
         [CustomAuthorize(true, false)]
-        public async Task<IActionResult> GetListItemFound(
+        public async Task<IActionResult> GetListItemClaim(
             [FromQuery] string? itemFoundId=null,
             [FromQuery] int page = 1,
             [FromQuery] int size = 10)
         {
             var result = await _itemClaim.GetListItemClaimByItemFoundId(page, size, itemFoundId);
             return new OkObjectResult(new DefaultResponse<Pagination<ItemClaimResponseDTO>>(result));
+        }
+
+        [HttpGet("{itemClaimId}")]
+        [ProducesResponseType(typeof(DefaultResponse<ItemClaimResponseDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true, false)]
+        public async Task<IActionResult> GetDetailItemClaim(
+            [FromRoute] string itemClaimId)
+        {
+            var result = await _itemClaim.GetItemClaimDetail(itemClaimId);
+            return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
 
         [HttpPost("{itemClaimId}/approve")]

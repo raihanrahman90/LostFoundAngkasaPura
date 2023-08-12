@@ -130,13 +130,14 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         }
 
 
-        public async Task<Pagination<ItemClaimResponseDTO>> GetListItemClaimByItemFoundId(int page, int size, string itemFoundId)
+        public async Task<Pagination<ItemClaimResponseDTO>> GetListItemClaimByItemFoundId(int page, int size, string itemFoundId, string? status)
         {
             var query = _unitOfWork.ItemClaimRepository
                                     .Include(t => t.ItemFound)
                                     .Where(t =>
                                     t.ActiveFlag &&
-                                    (itemFoundId == null || t.ItemFoundId.Equals(itemFoundId))
+                                    (itemFoundId == null || t.ItemFoundId.Equals(itemFoundId)) &&
+                                    (status == null || t.Status.Equals(status))
                                     )
                                     .OrderByDescending(t =>t.CreatedDate);
             return await ConvertToResponse(query, page, size);

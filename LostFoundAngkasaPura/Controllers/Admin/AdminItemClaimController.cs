@@ -25,9 +25,10 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         public async Task<IActionResult> GetListItemClaim(
             [FromQuery] string? itemFoundId=null,
             [FromQuery] int page = 1,
-            [FromQuery] int size = 10)
+            [FromQuery] int size = 10,
+            [FromQuery] string? status = null)
         {
-            var result = await _itemClaim.GetListItemClaimByItemFoundId(page, size, itemFoundId);
+            var result = await _itemClaim.GetListItemClaimByItemFoundId(page, size, itemFoundId, status);
             return new OkObjectResult(new DefaultResponse<Pagination<ItemClaimResponseDTO>>(result));
         }
 

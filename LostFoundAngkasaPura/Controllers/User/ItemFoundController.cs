@@ -40,9 +40,10 @@ namespace LostFoundAngkasaPura.Controllers.User
             [FromQuery] int size = 10,
             [FromQuery] string? name = null,
             [FromQuery] string? category = null,
-            [FromQuery] DateTime? foundDate = null)
+            [FromQuery] DateTime? foundDateStart = null,
+            [FromQuery] DateTime? foundDateEnd = null)
         {
-            var result = await _itemFound.GetListItemFound(page, size, name, category, ItemFoundStatus.Found, foundDate);
+            var result = await _itemFound.GetListItemFound(page, size, name, category, ItemFoundStatus.Found, foundDateStart, foundDateEnd);
             return new OkObjectResult(new DefaultResponse<Pagination<ItemFoundResponseDTO>>(result));
         }
 

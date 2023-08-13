@@ -28,7 +28,8 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemFound, ItemFoundResponseDTO>()
-                .ForMember(t=>t.Image, t=>t.MapFrom(d=>_uploadLocation.Url(d.Image)));
+                .ForMember(t=>t.Image, t=>t.MapFrom(d=>_uploadLocation.Url(d.Image)))
+                .ForMember(t=>t.FoundDate, t=>t.MapFrom(d=>d.FoundDate.ToString("yyyy-MM-dd")));
             }));
             _uploadLocation = uploadLocation;
         }
@@ -81,14 +82,15 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             return result;
         }
 
-        public async Task<Pagination<ItemFoundResponseDTO>> GetListItemFound(int page, int size, string? name, string? category, string? status, DateTime? foundDate)
+        public async Task<Pagination<ItemFoundResponseDTO>> GetListItemFound(int page, int size, string? name, string? category, string? status, DateTime? foundDateStart, DateTime? foundDateEnd)
         {
             var query = _unitOfWork.ItemFoundRepository
                                     .Where(t =>
                                     t.ActiveFlag &&
                                     (name == null || t.Name.ToLower().Contains(name.ToLower())) &&
                                     (category == null || t.Category.ToLower().Equals(category.ToLower())) &&
-                                    (foundDate == null || t.FoundDate.Equals(foundDate)) &&
+                                    (foundDateStart == null || t.FoundDate >= foundDateStart) &&
+                                    (foundDateEnd == null || t.FoundDate <= foundDateEnd) &&
                                     (status == null || t.Status.ToLower().Equals(status.ToLower())));
 
             var count = await query.CountAsync();

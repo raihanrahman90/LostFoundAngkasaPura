@@ -8,6 +8,6 @@
         public string Image { get; set; }
         public string Category { get; set; }
         public string Status { get; set; }
-        public DateTime FoundDate { get; set; }
+        public string FoundDate { get; set; }
     }
 }

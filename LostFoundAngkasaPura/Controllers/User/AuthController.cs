@@ -80,5 +80,11 @@ namespace LostFoundAngkasaPura.Controllers.User
             return new OkObjectResult(response);
         }
 
+        [HttpGet("access-token/check")]
+        [CustomAuthorize]
+        public async Task<IActionResult> CheckAccessToken()
+        {
+            return Ok();
+        }
     }
 }

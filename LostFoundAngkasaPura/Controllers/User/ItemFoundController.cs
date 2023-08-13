@@ -23,6 +23,7 @@ namespace LostFoundAngkasaPura.Controllers.User
             _itemClaim = itemClaim; 
         }
 
+
         [HttpGet("category")]
         [ProducesResponseType(typeof(DefaultResponse<List<ItemCategoryResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]

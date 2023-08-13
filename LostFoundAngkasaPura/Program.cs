@@ -106,7 +106,7 @@ builder.Services.AddCors(options =>
         {
             policy
             //.AllowAnyOrigin()
-            .WithOrigins("http://localhost:3000", "https://loclahost:3000", "http://103.150.92.47:3000/")
+            .WithOrigins("http://localhost:3000", "https://loclahost:3000", "http://103.150.92.47:3000")
             //            .WithMethods("PUT", "POST", "GET","OPTIONS", "DELETE")
             .AllowAnyMethod()
             .WithHeaders("Authorization", "Content-Type", "Cookies")

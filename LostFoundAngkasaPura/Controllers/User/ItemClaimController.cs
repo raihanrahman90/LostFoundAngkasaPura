@@ -10,6 +10,7 @@ using LostFoundAngkasaPura.Service.ItemFound;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 using static LostFoundAngkasaPura.Constant.Constant;
 
@@ -35,6 +36,17 @@ namespace LostFoundAngkasaPura.Controllers.User
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
             var result = await _itemClaim.GetListItemClaim(page, size, false,userId);
             return new OkObjectResult(new DefaultResponse<Pagination<ItemClaimResponseDTO>>(result));
+        }
+
+        [HttpGet("{itemClaimId}")]
+        [ProducesResponseType(typeof(DefaultResponse<ItemClaimResponseDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> GetDetailItemClaim(
+            [FromRoute] string itemClaimId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _itemClaim.GetItemClaimDetail(itemClaimId);
+            return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
 
         [HttpPost]

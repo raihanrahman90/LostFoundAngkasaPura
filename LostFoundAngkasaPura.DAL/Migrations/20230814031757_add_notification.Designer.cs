@@ -3,6 +3,7 @@ using System;
 using LostFoundAngkasaPura.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LostFoundAngkasaPura.DAL.Migrations
 {
     [DbContext(typeof(LostFoundDbContext))]
-    partial class LostFoundDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230814031757_add_notification")]
+    partial class add_notification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,10 +92,6 @@ namespace LostFoundAngkasaPura.DAL.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("ItemClaimId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)");
-
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("longtext");
 
@@ -115,8 +113,6 @@ namespace LostFoundAngkasaPura.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("ItemClaimId");
 
                     b.ToTable("admin_notification");
                 });
@@ -421,10 +417,6 @@ namespace LostFoundAngkasaPura.DAL.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("ItemClaimId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)");
-
                     b.Property<string>("LastUpdatedBy")
                         .HasColumnType("longtext");
 
@@ -449,8 +441,6 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemClaimId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("user_notification");
@@ -464,15 +454,7 @@ namespace LostFoundAngkasaPura.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LostFoundAngkasaPura.DAL.Model.ItemClaim", "ItemClaim")
-                        .WithMany()
-                        .HasForeignKey("ItemClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Admin");
-
-                    b.Navigation("ItemClaim");
                 });
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.ItemClaim", b =>
@@ -532,19 +514,11 @@ namespace LostFoundAngkasaPura.DAL.Migrations
 
             modelBuilder.Entity("LostFoundAngkasaPura.DAL.Model.UserNotification", b =>
                 {
-                    b.HasOne("LostFoundAngkasaPura.DAL.Model.ItemClaim", "ItemClaim")
-                        .WithMany()
-                        .HasForeignKey("ItemClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("LostFoundAngkasaPura.DAL.Model.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ItemClaim");
 
                     b.Navigation("User");
                 });

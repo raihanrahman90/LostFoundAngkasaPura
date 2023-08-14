@@ -9,12 +9,14 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         private DbContext dbContext;
 
         public DbSet<Admin> AdminRepository { get; set; }
+        public DbSet<AdminNotification> AdminNotificationRepository { get; set; }
         public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
         public DbSet<ItemClaim> ItemClaimRepository { get; set; }
         public DbSet<ItemClaimApproval> ItemClaimApprovalRepository { get; set; }
         public DbSet<ItemComment> ItemCommentRepository { get; set; }
         public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
+        public DbSet<UserNotification> UserNotificationRepository { get; set; }
 
         public UnitOfWork(LostFoundDbContext dbContext, IConfiguration configuration)
         {

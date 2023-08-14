@@ -1,7 +1,9 @@
 ﻿using LostFound.Authorize;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Auth;
+using LostFoundAngkasaPura.DTO.Notification;
 using LostFoundAngkasaPura.Service.Auth;
+using LostFoundAngkasaPura.Service.UserNotification;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LostFoundAngkasaPura.Controllers.User
@@ -11,10 +13,15 @@ namespace LostFoundAngkasaPura.Controllers.User
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserNotificationService _userNotificationService;
 
-        public AuthController(ILogger<AuthController> logger, IAuthService authService)
+        public AuthController(
+            ILogger<AuthController> logger, 
+            IAuthService authService,
+            IUserNotificationService userNotificationService)
         {
             _authService = authService;
+            _userNotificationService = userNotificationService;
         }
 
         [HttpPost("login")]
@@ -78,6 +85,24 @@ namespace LostFoundAngkasaPura.Controllers.User
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
             var response = await _authService.Logout(userId);
             return new OkObjectResult(response);
+        }
+
+        [HttpGet("notification")]
+        [CustomAuthorize]
+        public async Task<IActionResult> GetListNotification()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _userNotificationService.GetListNotification(userId);
+            return new OkObjectResult(new DefaultResponse<List<NotificationResponse>>(result));
+        }
+
+        [HttpGet("notification/count")]
+        [CustomAuthorize]
+        public async Task<IActionResult> GetCountNotification()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var count = await _userNotificationService.CountNotification(userId);
+            return new OkObjectResult(new DefaultResponse<int>(count));
         }
 
         [HttpGet("access-token/check")]

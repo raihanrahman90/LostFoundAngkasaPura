@@ -5,8 +5,10 @@ using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
+using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.ItemFound;
 using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         private readonly IUnitOfWork _unitOfWork;
         private readonly IItemFoundService _itemFoundService;
         private readonly IMailerService _mailerService;
+        private readonly IAdminNotificationService _adminNotificationService;
+        private readonly IUserNotificationService _userNotificationService;
         private readonly UploadLocation _uploadLocation;
         private IMapper _mapper;
 
@@ -27,12 +31,16 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             IUnitOfWork unitOfWork,
             IItemFoundService itemFoundService,
             IMailerService mailerService,
+            IAdminNotificationService adminNotificationService,
+            IUserNotificationService userNotificationService,
             UploadLocation uploadLocation)
         {
             _unitOfWork = unitOfWork;
             _itemFoundService = itemFoundService;
             _uploadLocation = uploadLocation;
             _mailerService = mailerService;
+            _adminNotificationService = adminNotificationService;
+            _userNotificationService = userNotificationService;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemClaim, ItemClaimResponseDTO>();
@@ -73,6 +81,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Image = itemFound.Image;
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
+            _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
             return result;
         }
 
@@ -114,6 +123,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
             _mailerService.ApproveClaim(itemClaim.User.Email, request.ClaimLocation, request.ClaimDate, _uploadLocation.WebsiteUrl(itemClaimId));
+            _userNotificationService.Approve(itemClaim.UserId, itemClaimId, itemFound.Name);
             return result;
         }
 
@@ -194,6 +204,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
             _mailerService.RejectClaim(itemClaim.User.Email, request.RejectReason, _uploadLocation.WebsiteUrl(itemClaimId));
+            _userNotificationService.Reject(itemClaim.UserId, itemClaimId, itemFound.Name);
             return result;
         }
 

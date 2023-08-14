@@ -23,6 +23,8 @@ using LostFoundAngkasaPura.Utils;
 using LostFoundAngkasaPura.Service.ItemClaim;
 using LostFoundAngkasaPura.Service.ItemComment;
 using LostFoundAngkasaPura.Service.Dashboard;
+using LostFoundAngkasaPura.Service.AdminNotification;
+using LostFoundAngkasaPura.Service.UserNotification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,12 +120,14 @@ builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<JwtSecurityTokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IAdminNotificationService, AdminNotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
 builder.Services.AddScoped<IItemClaimService, ItemClaimService>();
 builder.Services.AddScoped<IItemCommentService, ItemCommentService>();
 builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
+builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();
 builder.Services.AddSingleton<UploadLocation>();

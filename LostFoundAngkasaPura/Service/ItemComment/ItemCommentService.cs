@@ -2,6 +2,8 @@
 using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO.ItemComment;
+using LostFoundAngkasaPura.Service.AdminNotification;
+using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,12 +13,20 @@ namespace LostFoundAngkasaPura.Service.ItemComment
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UploadLocation _uploadLocation;
+        private readonly IUserNotificationService _userNotificationService;
+        private readonly IAdminNotificationService _adminNotificationService;
         private IMapper _mapper;
 
-        public ItemCommentService(IUnitOfWork uow, UploadLocation uploadLocation)
+        public ItemCommentService(
+            IUnitOfWork uow, 
+            UploadLocation uploadLocation,
+            IUserNotificationService userNotificationService,
+            IAdminNotificationService adminNotificationService)
         {
             _unitOfWork = uow;    
             _uploadLocation = uploadLocation;
+            _userNotificationService = userNotificationService;
+            _adminNotificationService = adminNotificationService;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemComment, ItemCommentResponseDTO>()
@@ -47,6 +57,28 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             }
             await _unitOfWork.ItemCommentRepository.AddAsync(comment);
             await _unitOfWork.SaveAsync();
+            if(userId != null)
+            {
+                var adminCommentId = "";
+                var lastComment = await _unitOfWork.ItemCommentRepository.Where(t => t.AdminId != null && t.ActiveFlag).OrderBy(t => t.CreatedDate).LastOrDefaultAsync();
+
+                var itemFound = await _unitOfWork.ItemClaimRepository
+                    .Include(t => t.ItemFound)
+                    .Where(t => t.Id.Equals(request.ItemClaimId))
+                    .Select(t => t.ItemFound)
+                    .FirstOrDefaultAsync();
+                if (lastComment == null) adminCommentId = itemFound.AdminId;
+                else  adminCommentId = lastComment.AdminId;
+                _userNotificationService.NewComment(adminCommentId, request.ItemClaimId, itemFound.Name);
+            }
+            else
+            {
+                var itemClaim = await _unitOfWork.ItemClaimRepository
+                    .Include(t => t.ItemFound)
+                    .Where(t => t.Id.Equals(request.ItemClaimId))
+                    .FirstOrDefaultAsync();
+                _userNotificationService.NewComment(itemClaim.UserId, request.ItemClaimId, itemClaim.ItemFound.Name);
+            }
             return _mapper.Map<ItemCommentResponseDTO>(comment);
         }
 

@@ -2,7 +2,9 @@
 using LostFoundAngkasaPura.Controllers.User;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
+using LostFoundAngkasaPura.DTO.Notification;
 using LostFoundAngkasaPura.Service.Admin;
+using LostFoundAngkasaPura.Service.AdminNotification;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LostFoundAngkasaPura.Controllers.Admin
@@ -12,10 +14,12 @@ namespace LostFoundAngkasaPura.Controllers.Admin
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly IAdminNotificationService _adminNotificationService;
 
-        public AdminController(ILogger<AuthController> logger, IAdminService adminService)
+        public AdminController(ILogger<AuthController> logger, IAdminService adminService, IAdminNotificationService adminNotificationService)
         {
             _adminService = adminService;
+            _adminNotificationService = adminNotificationService;
         }
 
         [HttpGet("")]
@@ -112,5 +116,22 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             return new OkObjectResult(new DefaultResponse<bool>(true));
         }
 
+        [HttpGet("notification/count")]
+        [CustomAuthorize(true)]
+        public async Task<IActionResult> GetNotificationCount()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var count = await _adminNotificationService.CountNotification(userId);
+            return new OkObjectResult(new DefaultResponse<int>(count));
+        }
+
+        [HttpGet("notification")]
+        [CustomAuthorize(true)]
+        public async Task<IActionResult> GetNotification()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminNotificationService.GetListNotification(userId);
+            return new OkObjectResult(new DefaultResponse<List<NotificationResponse>>(result));
+        }
     }
 }

@@ -219,9 +219,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         {
             var result = await _unitOfWork.ItemClaimRepository
                                     .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
-                                    .Select(t => new ItemClaimResponseDTO()
-                                    {
-                                    }).FirstOrDefaultAsync();
+                                    .Select(t => _mapper.Map<ItemClaimResponseDTO>(t)).FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();
             return result;
         }

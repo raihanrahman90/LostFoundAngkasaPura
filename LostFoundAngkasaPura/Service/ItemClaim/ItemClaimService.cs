@@ -113,6 +113,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             var itemClaim = await _unitOfWork.ItemClaimRepository
                                         .Include(t=>t.User)
                                         .Include(t=>t.ItemFound)
+                                        .Include(t => t.ItemClaimApproval)
                                         .Where(t => t.Id.Equals(itemClaimId)).FirstOrDefaultAsync();
             if(itemClaim == null) throw new NotFoundError();
             var itemFound = itemClaim.ItemFound;
@@ -162,6 +163,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             var query = _unitOfWork.ItemClaimRepository
                                     .Include(t => t.ItemFound)
                                     .Include(t=>t.User)
+                                    .Include(t => t.ItemClaimApproval)
                                     .Where(t =>
                                     t.ActiveFlag &&
                                     (itemFoundId == null || t.ItemFoundId.Equals(itemFoundId)) &&
@@ -218,6 +220,9 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         public async Task<ItemClaimResponseDTO> GetItemClaimDetail(string itemClaimId)
         {
             var result = await _unitOfWork.ItemClaimRepository
+                                     .Include(t=>t.User)
+                                     .Include(t=>t.ItemFound)
+                                     .Include(t=>t.ItemClaimApproval)
                                     .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
                                     .Select(t => _mapper.Map<ItemClaimResponseDTO>(t)).FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();

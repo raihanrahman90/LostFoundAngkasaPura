@@ -5,7 +5,7 @@ namespace LostFoundAngkasaPura.DAL.Model
     public class ItemClaimApproval : BaseModel
     {
         public string ItemClaimId { get; set; }
-        [ForeignKey("itemClaimId")]
+        [ForeignKey("ItemClaimId")]
         public ItemClaim ItemClaim { get; set; }
         public string Status { get; set; }
         public string? ClaimLocation { get; set; }

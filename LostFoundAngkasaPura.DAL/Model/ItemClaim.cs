@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace LostFoundAngkasaPura.DAL.Model
 {
@@ -15,5 +16,7 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string IdentityType { get; set; }
         public string IdentityNumber { get; set; }
         public string Status { get; set; }
+        [JsonIgnore]
+        public List<ItemClaimApproval>? ItemClaimApproval { get; set; }
     }
 }

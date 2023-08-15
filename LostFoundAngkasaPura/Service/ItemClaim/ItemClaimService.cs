@@ -13,7 +13,9 @@ using LostFoundAngkasaPura.Utils;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
+using System.Xml.Linq;
 using static LostFoundAngkasaPura.Constant.Constant;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LostFoundAngkasaPura.Service.ItemClaim
 {
@@ -43,8 +45,20 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             _userNotificationService = userNotificationService;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
-                t.CreateMap<DAL.Model.ItemClaim, ItemClaimResponseDTO>();
-            }));
+                t.CreateMap<DAL.Model.ItemClaim, ItemClaimResponseDTO>()
+                .ForMember(t => t.Description, t => t.MapFrom(t => t.ItemFound.Description))
+                .ForMember(t => t.Image, t => t.MapFrom(d=> _uploadLocation.Url(d.ItemFound.Image)))
+                .ForMember(t => t.Name, t=> t.MapFrom(d => d.ItemFound.Name))
+                .ForMember(t => t.ProofDescription, t => t.MapFrom( d=> _uploadLocation.Url(d.ProofImage)))
+                .ForMember(t => t.UserName, t=> t.MapFrom( d => d.User.Name))
+                .ForMember(t => t.UserPhoneNumber, t=> t.MapFrom(d => d.User.Phone))
+                .ForMember(t => t.ClaimDate, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimDate))
+                .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation));
+
+            })
+            {
+
+            });
         }
 
         public async Task<ItemClaimResponseDTO> ClaimItem(ItemClaimRequestDTO request, string userId)
@@ -107,12 +121,13 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             itemClaim.Status = ItemFoundStatus.Approved;
             itemClaim.LastUpdatedBy = userId;
             itemClaim.LastUpdatedDate = DateTime.Now;
-            DAL.Model.ItemClaimApproval approval = new ItemClaimApproval()
+            ItemClaimApproval approval = new ItemClaimApproval()
             {
                 ActiveFlag = true,
                 Status = ItemFoundStatus.Rejected,
                 ClaimDate = request.ClaimDate,
                 ClaimLocation = request.ClaimLocation,
+                ItemClaimId = itemClaimId
             };
             _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);
@@ -131,10 +146,12 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         {
             var query = _unitOfWork.ItemClaimRepository
                                     .Include(t => t.ItemFound)
+                                    .Include(t => t.User)
                                     .Where(t =>
                                     t.ActiveFlag &&
                                     (isAdmin || t.UserId.Equals(userId))
-                                    );
+                                    )
+                                    .OrderByDescending(t=>t.CreatedDate);
 
             return await ConvertToResponse(query, page, size);
         }
@@ -144,6 +161,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         {
             var query = _unitOfWork.ItemClaimRepository
                                     .Include(t => t.ItemFound)
+                                    .Include(t=>t.User)
                                     .Where(t =>
                                     t.ActiveFlag &&
                                     (itemFoundId == null || t.ItemFoundId.Equals(itemFoundId)) &&
@@ -159,19 +177,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             var data = await query
                                 .Skip((page - 1) * size)
                                 .Take(size)
-                                .Select(t => new ItemClaimResponseDTO()
-                                {
-                                    Id = t.Id,
-                                    ProofDescription = t.ProofDescription,
-                                    IdentityNumber = t.IdentityNumber,
-                                    IdentityType = t.IdentityType,
-                                    Description = t.ItemFound.Description,
-                                    Image = _uploadLocation.Url(t.ItemFound.Image),
-                                    Name = t.ItemFound.Name,
-                                    ProofImage = _uploadLocation.Url(t.ProofImage),
-                                    ItemFoundId = t.ItemFoundId,
-                                    Status = t.Status
-                                }).ToListAsync();
+                                .Select(t => _mapper.Map<ItemClaimResponseDTO>(t)).ToListAsync();
             return new Pagination<ItemClaimResponseDTO>(data, count, size, page);
         }
 
@@ -189,11 +195,12 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             itemClaim.Status = ItemFoundStatus.Rejected;
             itemClaim.LastUpdatedBy = userId;
             itemClaim.LastUpdatedDate = DateTime.Now;
-            DAL.Model.ItemClaimApproval approval = new ItemClaimApproval()
+            ItemClaimApproval approval = new ItemClaimApproval()
             {
                 ActiveFlag = true,
                 Status = ItemFoundStatus.Rejected,
-                RejectReason = request.RejectReason
+                RejectReason = request.RejectReason,
+                ItemClaimId = itemClaimId
             };
             _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);
@@ -214,16 +221,6 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                                     .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
                                     .Select(t => new ItemClaimResponseDTO()
                                     {
-                                        Id = t.Id,
-                                        ProofDescription = t.ProofDescription,
-                                        IdentityNumber = t.IdentityNumber,
-                                        IdentityType = t.IdentityType,
-                                        Description = t.ItemFound.Description,
-                                        Image = _uploadLocation.Url(t.ItemFound.Image),
-                                        Name = t.ItemFound.Name,
-                                        ProofImage = _uploadLocation.Url(t.ProofImage),
-                                        ItemFoundId = t.ItemFoundId,
-                                        Status = t.Status
                                     }).FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();
             return result;

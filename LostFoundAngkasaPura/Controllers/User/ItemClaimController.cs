@@ -29,6 +29,7 @@ namespace LostFoundAngkasaPura.Controllers.User
         [HttpGet]
         [ProducesResponseType(typeof(DefaultResponse<Pagination<ItemClaimResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize]
         public async Task<IActionResult> GetListItemFound(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10)
@@ -41,6 +42,7 @@ namespace LostFoundAngkasaPura.Controllers.User
         [HttpGet("{itemClaimId}")]
         [ProducesResponseType(typeof(DefaultResponse<ItemClaimResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize]
         public async Task<IActionResult> GetDetailItemClaim(
             [FromRoute] string itemClaimId)
         {

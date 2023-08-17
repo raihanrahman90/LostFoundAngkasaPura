@@ -88,6 +88,7 @@ namespace LostFoundAngkasaPura.Service.ItemComment
                 .Include(t=>t.User)
                 .Include(t=>t.Admin)
                 .Where(t => t.ItemClaimId.Equals(itemClaimId) && t.ActiveFlag)
+                .OrderBy(t=>t.CreatedDate)
                 .Select(t => _mapper.Map<ItemCommentResponseDTO>(t)).ToListAsync();
             return result;
         }

@@ -25,9 +25,10 @@ namespace LostFoundAngkasaPura.Controllers.User
         private readonly IItemClaimService _itemClaim;
         private readonly IItemCommentService _itemComment;
 
-        public ItemClaimController(IItemClaimService itemClaim)
+        public ItemClaimController(IItemClaimService itemClaim, IItemCommentService itemComment)
         {
-            _itemClaim = itemClaim; 
+            _itemClaim = itemClaim;
+            _itemComment = itemComment;
         }
 
         [HttpGet]

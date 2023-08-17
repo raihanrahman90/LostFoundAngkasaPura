@@ -69,7 +69,7 @@ namespace LostFoundAngkasaPura.Service.ItemComment
                     .FirstOrDefaultAsync();
                 if (lastComment == null) adminCommentId = itemFound.AdminId;
                 else  adminCommentId = lastComment.AdminId;
-                await _userNotificationService.NewComment(adminCommentId, request.ItemClaimId, itemFound.Name);
+                await _adminNotificationService.NewComment(adminCommentId, request.ItemClaimId, itemFound.Name);
             }
             else
             {

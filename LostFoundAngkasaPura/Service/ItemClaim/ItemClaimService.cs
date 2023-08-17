@@ -228,5 +228,12 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             if (result == null) throw new NotFoundError();
             return result;
         }
+
+        public async Task ValidateUser(string itemClaimId, string userId)
+        {
+            var claimerId = await _unitOfWork.ItemClaimRepository.Where(t => t.Id.Equals(itemClaimId)).Select(t=>t.UserId).FirstOrDefaultAsync();
+            if (claimerId.Equals(userId))
+                throw new NotAuthorizeError();
+        }
     }
 }

@@ -63,6 +63,7 @@ namespace LostFoundAngkasaPura.Controllers.User
             [FromRoute] string itemClaimId)
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            await _itemClaim.ValidateUser(itemClaimId, userId);
             var result = await _itemClaim.GetItemClaimDetail(itemClaimId);
             return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
@@ -73,6 +74,8 @@ namespace LostFoundAngkasaPura.Controllers.User
         public async Task<IActionResult> GetListComment(
             [FromRoute] string itemClaimId)
         {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            await _itemClaim.ValidateUser(itemClaimId, userId);
             var result = await _itemComment.GetComment(itemClaimId);
             return new OkObjectResult(new DefaultResponse<List<ItemCommentResponseDTO>>(result));
         }
@@ -85,6 +88,7 @@ namespace LostFoundAngkasaPura.Controllers.User
             [FromBody] ItemCommentCreateRequestDTO request)
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            await _itemClaim.ValidateUser(itemClaimId, userId);
             var result = await _itemComment.AddComment(request, userId, null);
             return new OkObjectResult(new DefaultResponse<ItemCommentResponseDTO>(result));
         }

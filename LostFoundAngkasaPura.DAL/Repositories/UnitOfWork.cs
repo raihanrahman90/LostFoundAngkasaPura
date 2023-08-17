@@ -21,12 +21,14 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public UnitOfWork(LostFoundDbContext dbContext, IConfiguration configuration)
         {
             this.AdminRepository = dbContext.admin;
+            this.AdminNotificationRepository = dbContext.admin_notification;
             this.ItemCategoryRepository = dbContext.item_category;
             this.ItemClaimRepository = dbContext.item_claim;
             this.ItemClaimApprovalRepository = dbContext.item_claim_approval;
             this.ItemCommentRepository = dbContext.item_comment;
             this.ItemFoundRepository = dbContext.item_found;
             this.UserRepository = dbContext.user;
+            this.UserNotificationRepository = dbContext.user_notification;
             this.dbContext = dbContext;
         }
 

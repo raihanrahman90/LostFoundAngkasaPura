@@ -52,7 +52,7 @@ namespace LostFoundAngkasaPura.Service.AdminNotification
                 ItemClaimId = itemClaimId,
                 Title = title,
                 Subtitle = subtitle,
-                Url = $"/Admin/Item-Claim/{itemClaimId}"
+                Url = $"/Admin/ItemClaim/{itemClaimId}"
             };
             await _unitOfWork.AdminNotificationRepository.AddAsync(notification);
             await _unitOfWork.SaveAsync();
@@ -72,7 +72,7 @@ namespace LostFoundAngkasaPura.Service.AdminNotification
                 ItemClaimId = itemClaimId,
                 Title = title,
                 Subtitle = subtitle,
-                Url = $"/Admin/Item-Claim/{itemClaimId}"
+                Url = $"/Admin/ItemClaim/{itemClaimId}"
             };
             await _unitOfWork.AdminNotificationRepository.AddAsync(notification);
             await _unitOfWork.SaveAsync();

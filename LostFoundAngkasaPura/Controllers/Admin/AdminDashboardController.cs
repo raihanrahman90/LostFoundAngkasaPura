@@ -54,7 +54,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             [FromQuery] DateTime? endDate = null)
         {
             var content = await _dashboardService.DownloadToExcel(startDate, endDate);
-            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Opportunities.xlsx");
+            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{DateTime.Now.ToShortDateString()}.xlsx");
         }
 
     }

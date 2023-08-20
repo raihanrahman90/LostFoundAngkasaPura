@@ -95,7 +95,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Image = itemFound.Image;
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
-            _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
+            await _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
             return result;
         }
 
@@ -138,9 +138,9 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Image = itemFound.Image;
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
-            _mailerService.ApproveClaim(itemClaim.User.Email, request.ClaimLocation, request.ClaimDate, _uploadLocation.WebsiteUrl(itemClaimId));
-            _userNotificationService.Approve(itemClaim.UserId, itemClaimId, itemFound.Name);
-            _adminNotificationService.DeleteNotification(userId, itemClaimId);
+            await _mailerService.ApproveClaim(itemClaim.User.Email, request.ClaimLocation, request.ClaimDate, _uploadLocation.WebsiteUrl(itemClaimId));
+            await _userNotificationService.Approve(itemClaim.UserId, itemClaimId, itemFound.Name);
+            await _adminNotificationService.DeleteNotification(userId, itemClaimId);
             return result;
         }
 

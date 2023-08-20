@@ -1,4 +1,6 @@
-﻿namespace LostFoundAngkasaPura.DTO
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace LostFoundAngkasaPura.DTO
 {
     public class DefaultResponse<T>
     {

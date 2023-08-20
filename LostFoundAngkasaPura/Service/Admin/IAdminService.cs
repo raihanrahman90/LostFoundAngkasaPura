@@ -12,5 +12,7 @@ namespace LostFoundAngkasaPura.Service.Admin
         Task<AdminResponseDTO> GetDetailAdmin(string adminId);
         Task<AdminResponseDTO> DeactivateAdmin(string adminId, string userId);
         Task LogoutAll(string userId);
+        Task<ProfileResponseDTO> GetProfile(string adminId);
+        Task<ProfileResponseDTO> UpdateProfile(ProfileUpdateRequestDTO request, string adminId);
     }
 }

@@ -197,5 +197,33 @@ namespace LostFoundAngkasaPura.Service.Admin
             return token;
         }
 
+        public async Task<ProfileResponseDTO> GetProfile(string adminId)
+        {
+            var admin = await _unitOfWork.AdminRepository.Where(t => t.Id.Equals(adminId)).FirstOrDefaultAsync();
+            return new ProfileResponseDTO()
+            {
+                Email = admin.Email
+            };
+        }
+
+        public async Task<ProfileResponseDTO> UpdateProfile(ProfileUpdateRequestDTO request, string adminId)
+        {
+            var isEmailUsed = await _unitOfWork.AdminRepository.Where(t => t.Email.Equals(request.Email) && !t.Id.Equals(adminId)).AnyAsync();
+            if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
+            var admin = await _unitOfWork.AdminRepository.Where(t => t.Id.Equals(adminId)).FirstOrDefaultAsync();
+            admin.Email = request.Email;
+            if (request.UpdatePassword)
+            {
+                var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                admin.Password = hashedPassword;
+                admin.RefreshToken = await GenerateRefreshToken();
+            }
+            _unitOfWork.AdminRepository.Update(admin);
+            await _unitOfWork.SaveAsync();
+            return new ProfileResponseDTO()
+            {
+                Email = request.Email
+            };
+        }
     }
 }

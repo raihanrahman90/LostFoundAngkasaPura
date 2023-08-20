@@ -98,6 +98,25 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
         }
 
+        [HttpGet("profile")]
+        [CustomAuthorize(true)]
+        public async Task<IActionResult> GetProfile()
+        {
+            var adminId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminService.GetProfile(adminId);
+            return new OkObjectResult(new DefaultResponse<ProfileResponseDTO>(result));
+        }
+
+        [HttpPost("profile")]
+        [ProducesResponseType(typeof(AdminAccessResponseDTO), 200)]
+        [CustomAuthorize(true)]
+        public async Task<IActionResult> UpdateProfile([FromBody] ProfileUpdateRequestDTO request)
+        {
+            var adminId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminService.UpdateProfile(request, adminId);
+            return new OkObjectResult(new DefaultResponse<ProfileResponseDTO>(result));
+        }
+
         [HttpGet("logout")]
         [CustomAuthorize(true)]
         public IActionResult Logout()

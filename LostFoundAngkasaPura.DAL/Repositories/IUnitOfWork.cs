@@ -13,6 +13,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public DbSet<ItemComment> ItemCommentRepository { get; set; }
         public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
+        public DbSet<UserForgotPassword> UserForgotPasswordRepository { get; set; }
         public DbSet<UserNotification> UserNotificationRepository { get; set; }
         Task SaveAsync();
         void Save();

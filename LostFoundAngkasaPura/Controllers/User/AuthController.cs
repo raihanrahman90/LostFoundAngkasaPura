@@ -1,6 +1,7 @@
 ﻿using LostFound.Authorize;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Auth;
+using LostFoundAngkasaPura.DTO.ForgotPassword;
 using LostFoundAngkasaPura.DTO.Notification;
 using LostFoundAngkasaPura.Service.Auth;
 using LostFoundAngkasaPura.Service.UserNotification;
@@ -111,5 +112,20 @@ namespace LostFoundAngkasaPura.Controllers.User
         {
             return Ok();
         }
+
+        [HttpPost("forgot-password/code")]
+        public async Task<IActionResult> ForgotPasswordCode([FromBody] ForgotPasswordCodeRequestDTO request)
+        {
+            await _authService.ForgotPasswordRequestCode(request);
+            return Ok();
+        }
+
+        [HttpPost("forgot-password/reset-password")]
+        public async Task<IActionResult> ForgotPasswordResetPassword([FromBody] ForgotPasswordResetPasswordRequestDTO request )
+        {
+            await _authService.ForgotPasswordResetPassword(request);
+            return Ok();
+        }
+
     }
 }

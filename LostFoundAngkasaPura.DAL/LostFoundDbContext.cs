@@ -14,6 +14,7 @@ namespace LostFoundAngkasaPura.DAL
         public DbSet<ItemComment> item_comment { get; set; }
         public DbSet<ItemFound> item_found { get; set; }
         public DbSet<User> user { get; set; }
+        public DbSet<UserForgotPassword> user_forgot_password { get; set; }
         public DbSet<UserNotification> user_notification { get; set; }
         public LostFoundDbContext(DbContextOptions options) : base(options)
         {
@@ -29,6 +30,7 @@ namespace LostFoundAngkasaPura.DAL
             builder.Entity<ItemComment>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<ItemFound>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<User>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
+            builder.Entity<UserForgotPassword>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<UserNotification>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
         }
     }

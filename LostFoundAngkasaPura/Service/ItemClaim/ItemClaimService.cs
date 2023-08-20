@@ -140,6 +140,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Description = itemFound.Description;
             _mailerService.ApproveClaim(itemClaim.User.Email, request.ClaimLocation, request.ClaimDate, _uploadLocation.WebsiteUrl(itemClaimId));
             _userNotificationService.Approve(itemClaim.UserId, itemClaimId, itemFound.Name);
+            _adminNotificationService.DeleteNotification(userId, itemClaimId);
             return result;
         }
 
@@ -214,6 +215,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Description = itemFound.Description;
             _mailerService.RejectClaim(itemClaim.User.Email, request.RejectReason, _uploadLocation.WebsiteUrl(itemClaimId));
             _userNotificationService.Reject(itemClaim.UserId, itemClaimId, itemFound.Name);
+            _adminNotificationService.DeleteNotification(userId, itemClaimId);
             return result;
         }
 

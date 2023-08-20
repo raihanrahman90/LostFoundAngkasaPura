@@ -59,6 +59,7 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             await _unitOfWork.SaveAsync();
             if(userId != null)
             {
+                //komen oleh user
                 var adminCommentId = "";
                 var lastComment = await _unitOfWork.ItemCommentRepository.Where(t => t.AdminId != null && t.ActiveFlag).OrderBy(t => t.CreatedDate).LastOrDefaultAsync();
 
@@ -69,14 +70,17 @@ namespace LostFoundAngkasaPura.Service.ItemComment
                     .FirstOrDefaultAsync();
                 if (lastComment == null) adminCommentId = itemFound.AdminId;
                 else  adminCommentId = lastComment.AdminId;
+                _userNotificationService.DeleteNotification(userId, request.ItemClaimId);
                 await _adminNotificationService.NewComment(adminCommentId, request.ItemClaimId, itemFound.Name);
             }
             else
             {
+                //admin submit komen
                 var itemClaim = await _unitOfWork.ItemClaimRepository
                     .Include(t => t.ItemFound)
                     .Where(t => t.Id.Equals(request.ItemClaimId))
                     .FirstOrDefaultAsync();
+                _adminNotificationService.DeleteNotification(adminId, request.ItemClaimId);
                 await _userNotificationService.NewComment(itemClaim.UserId, request.ItemClaimId, itemClaim.ItemFound.Name);
             }
             return _mapper.Map<ItemCommentResponseDTO>(comment);

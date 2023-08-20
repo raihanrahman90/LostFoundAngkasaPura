@@ -1,6 +1,7 @@
 ﻿using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Auth;
+using LostFoundAngkasaPura.DTO.ForgotPassword;
 
 namespace LostFoundAngkasaPura.Service.Auth
 {
@@ -10,5 +11,7 @@ namespace LostFoundAngkasaPura.Service.Auth
         Task<AccessResponseDTO> Login(LoginRequestDTO request);
         Task<AccessResponseDTO> GetAccessToken(string refreshToken);
         Task<DefaultResponse<UserResponseDTO>> Logout(string userId);
+        Task ForgotPasswordRequestCode(ForgotPasswordCodeRequestDTO request);
+        Task ForgotPasswordResetPassword(ForgotPasswordResetPasswordRequestDTO request);
     }
 }

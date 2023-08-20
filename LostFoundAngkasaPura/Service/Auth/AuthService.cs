@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using LostFoundAngkasaPura.DTO.Error;
 using AutoMapper;
 using LostFoundAngkasaPura.DTO;
+using LostFoundAngkasaPura.DTO.ForgotPassword;
+using LostFoundAngkasaPura.Service.Mailer;
 
 namespace LostFoundAngkasaPura.Service.Auth
 {
@@ -21,8 +23,9 @@ namespace LostFoundAngkasaPura.Service.Auth
         private readonly string ValidAudience;
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMailerService _mailerService;
         private IMapper _mapper;
-        public AuthService(IConfiguration configuration, JwtSecurityTokenHandler jwtSecurityTokenHandler, IUnitOfWork unitOfWork)
+        public AuthService(IConfiguration configuration, JwtSecurityTokenHandler jwtSecurityTokenHandler, IUnitOfWork unitOfWork, IMailerService mailerService)
         {
             JwtSecret = configuration.GetValue<string>("JWT:Secret");
             ValidIssuer = configuration.GetValue<string>("JWT:ValidIssuer");
@@ -33,6 +36,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             {
                 t.CreateMap<User, UserResponseDTO>();
             }));
+            _mailerService = mailerService;
          }
 
         public async Task<AccessResponseDTO> GetAccessToken(string refreshToken)
@@ -150,5 +154,33 @@ namespace LostFoundAngkasaPura.Service.Auth
             if (user == null) throw new DataMessageError(ErrorMessageConstant.UserNotFound);
             return user;
         }
+
+        public async Task ForgotPasswordRequestCode(ForgotPasswordCodeRequestDTO request)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Email.Equals(request.Email)).FirstOrDefaultAsync();
+            var code = "123123";
+            var forgotPassword = new UserForgotPassword() {
+                ActiveFlag = true,
+                Code = code,
+                UserId = user.Id,
+            };
+            await _unitOfWork.UserForgotPasswordRepository.AddAsync(forgotPassword);
+            await _unitOfWork.SaveAsync();
+            _mailerService.ForgotPassword(request.Email, code);
+        }
+
+        public async Task ForgotPasswordResetPassword(ForgotPasswordResetPasswordRequestDTO request)
+        {
+            var isPayloadRight = await _unitOfWork.UserForgotPasswordRepository
+                .Include(t=>t.User)
+                .Where(t=>t.User.Email.Equals(request.Email) && t.Code.Equals(request.Code))
+                .FirstOrDefaultAsync();
+            if (isPayloadRight == null) throw new DataMessageError(ErrorMessageConstant.ForgotPasswordWrongCode);
+            var user = isPayloadRight.User; 
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
+        }
+
     }
 }

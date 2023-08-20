@@ -16,6 +16,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public DbSet<ItemComment> ItemCommentRepository { get; set; }
         public DbSet<ItemFound> ItemFoundRepository { get; set; }
         public DbSet<User> UserRepository { get; set; }
+        public DbSet<UserForgotPassword> UserForgotPasswordRepository { get; set; }
         public DbSet<UserNotification> UserNotificationRepository { get; set; }
 
         public UnitOfWork(LostFoundDbContext dbContext, IConfiguration configuration)
@@ -28,6 +29,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
             this.ItemCommentRepository = dbContext.item_comment;
             this.ItemFoundRepository = dbContext.item_found;
             this.UserRepository = dbContext.user;
+            this.UserForgotPasswordRepository = dbContext.user_forgot_password;
             this.UserNotificationRepository = dbContext.user_notification;
             this.dbContext = dbContext;
         }

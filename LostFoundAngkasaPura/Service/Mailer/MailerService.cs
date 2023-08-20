@@ -51,6 +51,18 @@ namespace LostFoundAngkasaPura.Service.Mailer
             await Send(email, subject, html);
         }
 
+        public async Task ForgotPassword(string email, string code)
+        {
+            var subject = "Lost & Found SAMS Sepinggan Forgot Password";
+            var body = "" +
+                "<p>" +
+                "Masukan code berikut pada halaman lupa password untuk melakukan reset password" +
+                "</p>" +
+                $"<p>Code : {code}</p>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
         public async Task RejectClaim(string email, string reason, string url)
         {
             var subject = "Lost & Found SAMS Sepinggan Login Credential";

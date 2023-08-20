@@ -234,7 +234,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         public async Task ValidateUser(string itemClaimId, string userId)
         {
             var claimerId = await _unitOfWork.ItemClaimRepository.Where(t => t.Id.Equals(itemClaimId)).Select(t=>t.UserId).FirstOrDefaultAsync();
-            if (claimerId.Equals(userId))
+            if (!claimerId.Equals(userId))
                 throw new NotAuthorizeError();
         }
     }

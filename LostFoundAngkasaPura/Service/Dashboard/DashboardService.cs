@@ -1,4 +1,5 @@
-﻿using LostFoundAngkasaPura.DAL.Repositories;
+﻿using ClosedXML.Excel;
+using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO.Dashboard;
 using LostFoundAngkasaPura.DTO.Error;
 using Microsoft.EntityFrameworkCore;
@@ -144,6 +145,35 @@ namespace LostFoundAngkasaPura.Service.Dashboard
                     datasetComplete, datasetWaiting, datasetFound, datasetClaim
                 }
             };
+        }
+
+        public async Task<byte[]> DownloadToExcel(DateTime? startDate, DateTime? endDate)
+        {
+            var data = await GetGrafikData(startDate, endDate);
+            var dataClaim = data.Datasets.Where(t => t.Label.Equals("Claim")).FirstOrDefault().Data;
+            var dataFound = data.Datasets.Where(t => t.Label.Equals("Found")).FirstOrDefault().Data;
+            var dataClosed = data.Datasets.Where(t => t.Label.Equals("Closed")).FirstOrDefault().Data;
+            var tanggal = data.Labels;
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Data");
+                worksheet.Cell("A1").Value = "Tanggal";
+                worksheet.Cell("B1").Value = "Item Found";
+                worksheet.Cell("C1").Value = "Item Closed";
+                worksheet.Cell("D1").Value = "Claim Count";
+                for(var i = 0; i < tanggal.Count; i++)
+                {
+                    worksheet.Cell($"A{i+2}").Value = tanggal[i];
+                    worksheet.Cell($"B{i+2}").Value = dataFound[i];
+                    worksheet.Cell($"C{i+2}").Value = dataClosed[i];
+                    worksheet.Cell($"D{i+2}").Value = dataClaim[i];
+                }
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
+            }
         }
 
         private DateTime getLastDay(int year, int month)

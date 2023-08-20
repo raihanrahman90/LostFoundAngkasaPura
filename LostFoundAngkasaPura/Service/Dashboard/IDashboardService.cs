@@ -6,5 +6,6 @@ namespace LostFoundAngkasaPura.Service.Dashboard
     {
         Task<DashboardData> GetDashboardData(DateTime? startDate, DateTime? endDate);
         Task<DashboardGrafikData> GetGrafikData(DateTime? startDate, DateTime? endDate);
+        Task<byte[]> DownloadToExcel(DateTime? startDate, DateTime? endDate);
     }
 }

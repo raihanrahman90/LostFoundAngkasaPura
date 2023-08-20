@@ -178,6 +178,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             if (isPayloadRight == null) throw new DataMessageError(ErrorMessageConstant.ForgotPasswordWrongCode);
             var user = isPayloadRight.User; 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            user.Password = hashedPassword;
             _unitOfWork.UserRepository.Update(user);
             await _unitOfWork.SaveAsync();
         }

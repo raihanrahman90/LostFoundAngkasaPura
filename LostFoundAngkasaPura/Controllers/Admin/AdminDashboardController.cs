@@ -3,9 +3,9 @@ using LostFoundAngkasaPura.Controllers.User;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
 using LostFoundAngkasaPura.DTO.Dashboard;
-using LostFoundAngkasaPura.Service.Admin;
 using LostFoundAngkasaPura.Service.Dashboard;
 using Microsoft.AspNetCore.Mvc;
+using ClosedXML.Excel;
 
 namespace LostFoundAngkasaPura.Controllers.Admin
 {
@@ -43,6 +43,17 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         {
             var result = await _dashboardService.GetGrafikData(startDate, endDate);
             return new OkObjectResult(new DefaultResponse<DashboardGrafikData>(result));
+        }
+
+        [HttpGet("download")]
+        [ProducesResponseType(typeof(DefaultResponse<Pagination<AdminResponseDTO>>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> DowloadToExcel(
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            var content = await _dashboardService.DownloadToExcel(startDate, endDate);
+            return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Opportunities.xlsx");
         }
 
     }

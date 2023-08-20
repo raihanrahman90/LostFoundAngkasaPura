@@ -48,6 +48,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [HttpGet("download")]
         [ProducesResponseType(typeof(DefaultResponse<Pagination<AdminResponseDTO>>), 200)]
         [ProducesResponseType(typeof(string), 400)]
+        [CustomAuthorize(true)]
         public async Task<IActionResult> DowloadToExcel(
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null)

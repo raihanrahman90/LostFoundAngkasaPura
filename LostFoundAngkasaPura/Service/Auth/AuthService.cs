@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using LostFoundAngkasaPura.DAL.Model;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using LostFoundAngkasaPura.DAL.Repositories;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +33,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             _unitOfWork = unitOfWork;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
-                t.CreateMap<User, UserResponseDTO>();
+                t.CreateMap<DAL.Model.User, UserResponseDTO>();
             }));
             _mailerService = mailerService;
          }
@@ -82,7 +81,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var refreshToken = await GenerateRefreshToken();
-            var user = new User()
+            var user = new DAL.Model.User()
             {
                 Email = request.Email,
                 Password = hashedPassword,
@@ -148,7 +147,7 @@ namespace LostFoundAngkasaPura.Service.Auth
             return token;
         }
 
-        private async Task<User> findUserById(string userId)
+        private async Task<DAL.Model.User> findUserById(string userId)
         {
             var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId) && t.ActiveFlag).FirstOrDefaultAsync();
             if (user == null) throw new DataMessageError(ErrorMessageConstant.UserNotFound);

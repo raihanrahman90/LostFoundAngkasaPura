@@ -1,6 +1,6 @@
 ﻿namespace LostFoundAngkasaPura.DTO.Customer
 {
-    public class UserResponseDTO
+    public class CustomerResponseDTO
     {
         public string Id { get; set; }
         public string Name { get; set; }

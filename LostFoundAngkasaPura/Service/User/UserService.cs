@@ -16,20 +16,20 @@ namespace LostFoundAngkasaPura.Service.User
             _unitOfWork = unitOfWork;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
-                t.CreateMap<DAL.Model.User, UserResponseDTO>();
+                t.CreateMap<DAL.Model.User, CustomerResponseDTO>();
             }));
         }
 
-        public async Task<UserResponseDTO> GetDetailCustomer(string userId)
+        public async Task<CustomerResponseDTO> GetDetailCustomer(string userId)
         {
             var data = await _unitOfWork.UserRepository
                             .Where(t => t.Id.Equals(userId))
-                            .Select(t => _mapper.Map<UserResponseDTO>(t))
+                            .Select(t => _mapper.Map<CustomerResponseDTO>(t))
                             .FirstOrDefaultAsync();
             return data;
         }
 
-        public async Task<Pagination<UserResponseDTO>> GetListCustomer(int page, int size, string name)
+        public async Task<Pagination<CustomerResponseDTO>> GetListCustomer(int page, int size, string name)
         {
             var query = _unitOfWork.UserRepository
                                 .Where(t => t.ActiveFlag && t.Name.Contains(name));
@@ -38,8 +38,8 @@ namespace LostFoundAngkasaPura.Service.User
                 .OrderBy(t=>t.Name)
                 .Skip((page - 1) * size)
                 .Take(size)
-                .Select(t => _mapper.Map<UserResponseDTO>(t)).ToListAsync();
-            return new Pagination<UserResponseDTO>(data, count, size, page);
+                .Select(t => _mapper.Map<CustomerResponseDTO>(t)).ToListAsync();
+            return new Pagination<CustomerResponseDTO>(data, count, size, page);
         }
     }
 }

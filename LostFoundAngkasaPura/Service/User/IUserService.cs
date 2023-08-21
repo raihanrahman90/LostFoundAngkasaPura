@@ -5,8 +5,8 @@ namespace LostFoundAngkasaPura.Service.User
 {
     public interface IUserService
     {
-        Task<Pagination<UserResponseDTO>> GetListCustomer(int page, int size, string name);
+        Task<Pagination<CustomerResponseDTO>> GetListCustomer(int page, int size, string name);
 
-        Task<UserResponseDTO> GetDetailCustomer(string userId);
+        Task<CustomerResponseDTO> GetDetailCustomer(string userId);
     }
 }

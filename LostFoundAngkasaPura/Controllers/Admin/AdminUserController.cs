@@ -24,7 +24,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             [FromQuery] string name = "")
         {
             var result = await _userService.GetListCustomer(page, size, name);
-            return new OkObjectResult(new DefaultResponse<Pagination<UserResponseDTO>>(result));
+            return new OkObjectResult(new DefaultResponse<Pagination<CustomerResponseDTO>>(result));
         }
 
         [HttpGet("{userId}")]
@@ -33,7 +33,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             [FromRoute] string userId)
         {
             var result = await _userService.GetDetailCustomer(userId);
-            return new OkObjectResult(new DefaultResponse<UserResponseDTO>(result));
+            return new OkObjectResult(new DefaultResponse<CustomerResponseDTO>(result));
         }
     }
 }

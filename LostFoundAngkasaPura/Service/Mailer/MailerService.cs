@@ -43,10 +43,22 @@ namespace LostFoundAngkasaPura.Service.Mailer
             var body = "" +
                 "<p>" +
                 "Email Anda telah terdaftar sebagai Admin pada akun Lost & Found Bandara SAMS Sepinggan Balikpapan, " +
-                $"silahkan login pada <a href='{UrlWebsite  }'>link</a> dengan menggunakan authentication berikut" +
+                $"silahkan login pada <a href='{UrlWebsite}'>link</a> dengan menggunakan authentication berikut" +
                 "</p>" +
                 $"<p>Email: {email}</p>" +
                 $"<p>Password: {password}</p>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
+        public async Task CreateClaim(string email, string id)
+        {
+            var subject = "Lost & Found SAMS Sepinggan User Claim Item";
+            var body = "" +
+                "<p>" +
+                "User melakukan claim terhadap item yang Anda upload, lihat detail claim pada lin berikut" +
+                "</p>" +
+                $"<a href='{UrlWebsite}/admin/ItemClaim/{id}'>link</a></p>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }

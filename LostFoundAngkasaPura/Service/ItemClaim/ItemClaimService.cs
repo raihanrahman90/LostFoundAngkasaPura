@@ -10,12 +10,8 @@ using LostFoundAngkasaPura.Service.ItemFound;
 using LostFoundAngkasaPura.Service.Mailer;
 using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing;
-using System.Xml.Linq;
 using static LostFoundAngkasaPura.Constant.Constant;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LostFoundAngkasaPura.Service.ItemClaim
 {
@@ -80,11 +76,11 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ProofImageBase64);
                 var fileName = $"{userId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
                 var fileLocation = _uploadLocation.ItemClaimLocation(fileName);
-                Utils.GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
+                GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
                 itemClaim.ProofImage = fileLocation;
             }
             else throw new DataMessageError(ErrorMessageConstant.ImageEmpty);
-            var itemFound = await _unitOfWork.ItemFoundRepository.Where(t => t.Id.Equals(request.ItemFoundId)).FirstOrDefaultAsync();
+            var itemFound = await _unitOfWork.ItemFoundRepository.Include(t=>t.Admin).Where(t => t.Id.Equals(request.ItemFoundId)).FirstOrDefaultAsync();
             if (!itemFound.Status.ToLower().Equals(ItemFoundStatus.Found.ToLower()))
                 throw new DataMessageError(ErrorMessageConstant.ItemInClaimProgress);
             await _itemFoundService.UpdateStatus(ItemFoundStatus.Confirmation, userId, itemFound);
@@ -96,6 +92,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
             await _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
+            await _mailerService.CreateClaim(itemFound.Admin.Email, result.Id);
             return result;
         }
 
@@ -213,9 +210,9 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             result.Image = itemFound.Image;
             result.Name = itemFound.Name;
             result.Description = itemFound.Description;
-            _mailerService.RejectClaim(itemClaim.User.Email, request.RejectReason, _uploadLocation.WebsiteUrl(itemClaimId));
-            _userNotificationService.Reject(itemClaim.UserId, itemClaimId, itemFound.Name);
-            _adminNotificationService.DeleteNotification(userId, itemClaimId);
+            await _mailerService.RejectClaim(itemClaim.User.Email, request.RejectReason, _uploadLocation.WebsiteUrl(itemClaimId));
+            await _userNotificationService.Reject(itemClaim.UserId, itemClaimId, itemFound.Name);
+            await _adminNotificationService.DeleteNotification(userId, itemClaimId);
             return result;
         }
 

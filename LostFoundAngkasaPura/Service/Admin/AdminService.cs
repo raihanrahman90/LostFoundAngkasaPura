@@ -170,9 +170,11 @@ namespace LostFoundAngkasaPura.Service.Admin
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSecret));
+            var expire = DateTime.Now.AddDays(1);
             var token = new JwtSecurityToken(
                 issuer: ValidIssuer,
                 audience: ValidAudience,
+                expires: expire,
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256Signature)
 

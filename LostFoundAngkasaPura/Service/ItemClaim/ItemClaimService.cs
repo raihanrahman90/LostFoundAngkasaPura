@@ -4,7 +4,6 @@ using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.DTO.ItemClaim;
-using LostFoundAngkasaPura.DTO.ItemFound;
 using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.ItemFound;
 using LostFoundAngkasaPura.Service.Mailer;
@@ -48,6 +47,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 .ForMember(t => t.ProofImage, t => t.MapFrom(d => _uploadLocation.Url(d.ProofImage)))
                 .ForMember(t => t.UserName, t => t.MapFrom(d => d.User.Name))
                 .ForMember(t => t.UserPhoneNumber, t => t.MapFrom(d => d.User.Phone))
+                .ForMember(t => t.UserEmail, t => t.MapFrom(d => d.User.Email))
                 .ForMember(t => t.ItemFoundStatus, t => t.MapFrom(d => d.ItemFound.Status))
                 .ForMember(t => t.ClaimDate, t => t.MapFrom(d => 
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault()==null?

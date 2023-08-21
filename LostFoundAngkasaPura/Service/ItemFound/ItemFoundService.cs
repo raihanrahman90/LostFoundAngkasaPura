@@ -4,8 +4,10 @@ using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
+using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 using static LostFoundAngkasaPura.Constant.Constant;
@@ -39,6 +41,24 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             var itemFound = await _unitOfWork.ItemFoundRepository.Where(t=>t.Id.Equals(itemFoundId)).FirstOrDefaultAsync();
             if (itemFound == null) throw new NotFoundError();
             var response = await UpdateStatus(ItemFoundStatus.Closed, userId, itemFound);
+            var listItemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.ItemFoundId.Equals(itemFound)).ToListAsync();
+
+            //update not approved status
+            var updateStatus = listItemClaim.Where(t=>!t.Status.Equals(ItemFoundStatus.Approved)).ToList();
+            foreach(var update in updateStatus)
+            {
+                update.Status = ItemFoundStatus.Rejected;
+            }
+            _unitOfWork.ItemClaimRepository.UpdateRange(updateStatus);
+
+            //delete notification
+            var idDeleteNotif = listItemClaim.Select(t => t.Id).ToList();
+            var deleteAdminNotif = await _unitOfWork.AdminNotificationRepository.Where(t => idDeleteNotif.Contains(t.ItemClaimId)).ToListAsync();
+            var deleteUserNotif = await _unitOfWork.UserNotificationRepository.Where(t => idDeleteNotif.Contains(t.ItemClaimId)).ToListAsync();
+            _unitOfWork.AdminNotificationRepository.RemoveRange(deleteAdminNotif);
+            _unitOfWork.UserNotificationRepository.RemoveRange(deleteUserNotif);
+            await _unitOfWork.SaveAsync();
+
             return response;
         }
 

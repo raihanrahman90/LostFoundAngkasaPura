@@ -21,7 +21,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         public async Task<IActionResult> GetListCustomer(
             [FromQuery] int page = 1,
             [FromQuery] int size = 10,
-            [FromQuery] string name = "")
+            [FromQuery] string? name = "")
         {
             var result = await _userService.GetListCustomer(page, size, name);
             return new OkObjectResult(new DefaultResponse<Pagination<CustomerResponseDTO>>(result));

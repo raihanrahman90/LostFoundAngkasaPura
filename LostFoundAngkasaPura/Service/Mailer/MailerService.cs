@@ -31,7 +31,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 $"pengambilan dapat dilakukan pada lokasi dan tempat sebagai berikut" +
                 "</p>" +
                 $"<p>Lokasi : {location}</p>" +
-                $"<p>Tanggal: {date.ToString("yyyy-MM-dd HH:mm:ss")}</p>" +
+                $"<p>Tanggal: {date.ToString("yyyy-MM-dd")}</p>" +
                 $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{UrlWebsite}'>link</a>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);

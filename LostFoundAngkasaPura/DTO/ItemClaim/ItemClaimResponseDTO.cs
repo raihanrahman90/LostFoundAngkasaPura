@@ -15,7 +15,7 @@
         public string ProofImage { get; set; }
         public string ProofDescription { get; set; }
         public string? ClaimLocation { get; set; }
-        public DateTime? ClaimDate { get; set; }
+        public string? ClaimDate { get; set; }
         public string? RejectReason { get; set; }
         public DateTime? CreatedDate { get; set; }
 

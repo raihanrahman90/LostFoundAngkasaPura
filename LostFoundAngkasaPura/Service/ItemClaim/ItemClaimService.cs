@@ -48,6 +48,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 .ForMember(t => t.ProofImage, t => t.MapFrom(d => _uploadLocation.Url(d.ProofImage)))
                 .ForMember(t => t.UserName, t => t.MapFrom(d => d.User.Name))
                 .ForMember(t => t.UserPhoneNumber, t => t.MapFrom(d => d.User.Phone))
+                .ForMember(t => t.ItemFoundStatus, t => t.MapFrom(d => d.ItemFound.Status))
                 .ForMember(t => t.ClaimDate, t => t.MapFrom(d => 
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault()==null?
                             null:

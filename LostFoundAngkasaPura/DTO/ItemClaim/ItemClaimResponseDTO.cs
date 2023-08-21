@@ -8,6 +8,7 @@
         public string Description { get; set; }
         public string Image { get; set; }
         public string Status { get; set; }
+        public string ItemFoundStatus { get; set; }
         public string IdentityNumber { get; set; }
         public string IdentityType { get; set; }
         public string UserName { get; set; }

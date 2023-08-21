@@ -122,7 +122,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             ItemClaimApproval approval = new ItemClaimApproval()
             {
                 ActiveFlag = true,
-                Status = ItemFoundStatus.Rejected,
+                Status = ItemFoundStatus.Approved,
                 ClaimDate = request.ClaimDate,
                 ClaimLocation = request.ClaimLocation,
                 ItemClaimId = itemClaimId

@@ -25,6 +25,7 @@ using LostFoundAngkasaPura.Service.ItemComment;
 using LostFoundAngkasaPura.Service.Dashboard;
 using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.UserNotification;
+using LostFoundAngkasaPura.Service.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +128,7 @@ builder.Services.AddScoped<IItemCategoryService, ItemCategoryService>();
 builder.Services.AddScoped<IItemClaimService, ItemClaimService>();
 builder.Services.AddScoped<IItemCommentService, ItemCommentService>();
 builder.Services.AddScoped<IItemFoundService, ItemFoundService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();

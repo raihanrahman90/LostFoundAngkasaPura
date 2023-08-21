@@ -10,11 +10,6 @@ using LostFoundAngkasaPura.Service.ItemClaim;
 using LostFoundAngkasaPura.Service.ItemComment;
 using LostFoundAngkasaPura.Service.ItemFound;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Xml.Linq;
-using static LostFoundAngkasaPura.Constant.Constant;
 
 namespace LostFoundAngkasaPura.Controllers.User
 {

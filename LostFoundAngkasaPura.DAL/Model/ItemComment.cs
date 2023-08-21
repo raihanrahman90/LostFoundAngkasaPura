@@ -14,6 +14,6 @@ namespace LostFoundAngkasaPura.DAL.Model
         [ForeignKey("AdminId")]
         public Admin? Admin { get; set; }
         public string Value { get; set; }
-        public string ImageLocation { get; set; }
+        public string? ImageLocation { get; set; }
     }
 }

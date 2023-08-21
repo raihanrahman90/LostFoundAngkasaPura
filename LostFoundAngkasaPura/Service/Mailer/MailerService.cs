@@ -32,7 +32,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "</p>" +
                 $"<p>Lokasi : {location}</p>" +
                 $"<p>Tanggal: {date.ToString("yyyy-MM-dd")}</p>" +
-                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{UrlWebsite}'>link</a>";
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
@@ -43,7 +43,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
             var body = "" +
                 "<p>" +
                 "Email Anda telah terdaftar sebagai Admin pada akun Lost & Found Bandara SAMS Sepinggan Balikpapan, " +
-                $"silahkan login pada <a href='{UrlWebsite}'>link</a> dengan menggunakan authentication berikut" +
+                $"silahkan login pada <a href='{UrlWebsite}/admin'>link</a> dengan menggunakan authentication berikut" +
                 "</p>" +
                 $"<p>Email: {email}</p>" +
                 $"<p>Password: {password}</p>";
@@ -84,7 +84,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "dengan alasan sebagai berikut" +
                 "</p>" +
                 $"<p>Alasan : {reason}</p>" +
-                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{UrlWebsite}'>link</a>";
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }

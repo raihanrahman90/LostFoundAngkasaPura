@@ -30,7 +30,7 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemComment, ItemCommentResponseDTO>()
-                .ForMember(t=>t.Image, t=>t.MapFrom(t=>_uploadLocation.Url(t.ImageLocation)))
+                .ForMember(t=>t.Image, t=>t.MapFrom(t=>String.IsNullOrEmpty(t.ImageLocation)?null:_uploadLocation.Url(t.ImageLocation)))
                 .ForMember(t=>t.UserName, t => t.MapFrom(t => t.UserId==null?t.Admin.Name:t.User.Name))
                 .ForMember(t=>t.UserStatus, t=>t.MapFrom(t => t.UserId == null?"Admin":"User"));
                 

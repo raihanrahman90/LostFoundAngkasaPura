@@ -152,5 +152,14 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             var result = await _adminNotificationService.GetListNotification(userId);
             return new OkObjectResult(new DefaultResponse<List<NotificationResponse>>(result));
         }
+
+        [HttpPost("{adminId}/reset-password")]
+        [CustomAuthorize(true, true)]
+        public async Task<IActionResult> ResetPassword([FromRoute] string adminId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminService.ResetPassword(adminId, userId);
+            return new OkObjectResult(new DefaultResponse<string>(result));
+        }
     }
 }

@@ -109,8 +109,22 @@ namespace LostFoundAngkasaPura.Service.Admin
 
             await _unitOfWork.AdminRepository.AddAsync(admin);
             await _unitOfWork.SaveAsync();
-            _mailserService.CreateAdmin(request.Email, request.Name, password);
+            await _mailserService.CreateAdmin(request.Email, request.Name, password);
             return _mapper.Map<AdminResponseDTO>(admin);
+        }
+
+        public async Task<string> ResetPassword(string adminId, string userId)
+        {
+            var admin = await _unitOfWork.AdminRepository.Where(t => t.Id.Equals(adminId)).FirstOrDefaultAsync();
+            var password = Utils.GeneralUtils.GetRandomPassword(10);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+            var refreshToken = await GenerateRefreshToken();
+            admin.Password = hashedPassword;
+            admin.RefreshToken = refreshToken;
+            _unitOfWork.AdminRepository.Update(admin);
+            await _unitOfWork.SaveAsync();
+            await _mailserService.CreateAdmin(admin.Email, admin.Name, password);
+            return "Success";
         }
 
         public async Task<AdminAccessResponseDTO> Login(AdminLoginRequestDTO request)

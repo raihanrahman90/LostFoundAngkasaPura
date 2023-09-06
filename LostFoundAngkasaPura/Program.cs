@@ -108,8 +108,8 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-            //.AllowAnyOrigin()
             .AllowAnyOrigin()
+            //.WithOrigins("http://localhost:3000", "https://localhost:3000", "http://103.150.92.47:3001", "http://103.150.92.47:3000")
             //            .WithMethods("PUT", "POST", "GET","OPTIONS", "DELETE")
             .AllowAnyMethod()
             .WithHeaders("Authorization", "Content-Type", "Cookies")
@@ -183,8 +183,8 @@ app.UseExceptionHandler(c => c.Run(async context =>
     await context.Response.WriteAsJsonAsync(response);
 
 }));
-app.UseRouting();
 app.UseCors(MyAllowSpecificOrigins);
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

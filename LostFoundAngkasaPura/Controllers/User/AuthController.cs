@@ -30,14 +30,7 @@ namespace LostFoundAngkasaPura.Controllers.User
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO dto)
         {
             var result = await _authService.Login(dto);
-            HttpContext.Response.Cookies.Append("refreshToken", result.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None,
-                });
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
+            return new OkObjectResult(new DefaultResponse<AccessResponseDTO>(result));
         }
 
         [HttpPost("register")]
@@ -45,38 +38,15 @@ namespace LostFoundAngkasaPura.Controllers.User
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO dto)
         {
             var result = await _authService.Register(dto);
-            HttpContext.Response.Cookies.Append("refreshToken", result.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None,
-                });
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
+            return new OkObjectResult(new DefaultResponse<AccessResponseDTO>(result));
         }
 
         [HttpGet("access-token")]
         [ProducesResponseType(typeof(AccessResponseDTO), 200)]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken([FromQuery] string refreshToken)
         {
-            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
             var result = await _authService.GetAccessToken(refreshToken);
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
-        }
-
-        [HttpGet("logout")]
-        [CustomAuthorize]
-        public IActionResult Logout()
-        {
-            HttpContext.Response.Cookies.Append("refreshToken", "",
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTime.Now.AddDays(-1)
-                });
-            return new OkObjectResult(new DefaultResponse<string>(""));
+            return new OkObjectResult(new DefaultResponse<AccessResponseDTO>(result));
         }
 
         [HttpGet("logout-all")]

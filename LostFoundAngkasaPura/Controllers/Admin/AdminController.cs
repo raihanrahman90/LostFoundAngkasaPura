@@ -2,6 +2,7 @@
 using LostFoundAngkasaPura.Controllers.User;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
+using LostFoundAngkasaPura.DTO.Auth;
 using LostFoundAngkasaPura.DTO.Notification;
 using LostFoundAngkasaPura.Service.Admin;
 using LostFoundAngkasaPura.Service.AdminNotification;
@@ -78,24 +79,15 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         public async Task<ActionResult> Login([FromBody] AdminLoginRequestDTO dto)
         {
             var result = await _adminService.Login(dto);
-            HttpContext.Response.Cookies.Append("refreshToken", result.RefreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    IsEssential = true,
-                    SameSite = SameSiteMode.None,
-                    Secure = HttpContext.Request.Scheme == "https",
-                });
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
+            return new OkObjectResult(new DefaultResponse<AdminAccessResponseDTO>(result));
         }
 
         [HttpGet("access-token")]
         [ProducesResponseType(typeof(AdminAccessResponseDTO), 200)]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken([FromQuery] string refreshToken)
         {
-            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
             var result = await _adminService.GetAccessToken(refreshToken);
-            return new OkObjectResult(new DefaultResponse<string>(result.AccessToken));
+            return new OkObjectResult(new DefaultResponse<AdminAccessResponseDTO>(result));
         }
 
         [HttpGet("profile")]
@@ -117,21 +109,12 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             return new OkObjectResult(new DefaultResponse<ProfileResponseDTO>(result));
         }
 
-        [HttpGet("logout")]
-        [CustomAuthorize(true)]
-        public IActionResult Logout()
-        {
-            HttpContext.Response.Cookies.Delete("refreshToken");
-            return new OkObjectResult(new DefaultResponse<string>(""));
-        }
-
         [HttpGet("logout-all")]
         [CustomAuthorize(true)]
         public async Task<IActionResult> LogoutAll()
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
             await _adminService.LogoutAll(userId);
-            HttpContext.Response.Cookies.Delete("refreshToken");
             return new OkObjectResult(new DefaultResponse<bool>(true));
         }
 

@@ -97,5 +97,32 @@ namespace LostFoundAngkasaPura.Controllers.User
             return Ok();
         }
 
+        [HttpGet("my-data")]
+        [CustomAuthorize]
+        public async Task<IActionResult> GetMyData()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var data = await _authService.GetData(userId);
+            return new OkObjectResult(new DefaultResponse<UserResponseDTO>(data));
+        }
+
+        [HttpPost("my-data")]
+        [CustomAuthorize]
+        public async Task<IActionResult> UpdateMyData([FromBody] UserDataUpdateRequestDTO request)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var data = await _authService.UpdateData(request, userId);
+            return new OkObjectResult(new DefaultResponse<UserResponseDTO>(data));
+        }
+
+        [HttpDelete("my-data")]
+        [CustomAuthorize]
+        public async Task<IActionResult> DeleteData()
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _authService.DeleteData(userId);
+            return new OkObjectResult(new DefaultResponse<bool>(result));
+        }
+
     }
 }

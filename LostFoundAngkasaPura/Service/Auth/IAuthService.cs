@@ -13,5 +13,9 @@ namespace LostFoundAngkasaPura.Service.Auth
         Task<DefaultResponse<UserResponseDTO>> Logout(string userId);
         Task ForgotPasswordRequestCode(ForgotPasswordCodeRequestDTO request);
         Task ForgotPasswordResetPassword(ForgotPasswordResetPasswordRequestDTO request);
+        Task<UserResponseDTO> GetData(string userId);
+        Task<UserResponseDTO> UpdateData(UserDataUpdateRequestDTO request, string userId);
+
+        Task<bool> DeleteData(string userId);
     }
 }

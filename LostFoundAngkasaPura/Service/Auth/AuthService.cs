@@ -182,5 +182,38 @@ namespace LostFoundAngkasaPura.Service.Auth
             await _unitOfWork.SaveAsync();
         }
 
+        public async Task<UserResponseDTO> GetData(string userId)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId)).FirstOrDefaultAsync();
+            return _mapper.Map<UserResponseDTO>(user);
+        }
+
+        public async Task<UserResponseDTO> UpdateData(UserDataUpdateRequestDTO request, string userId)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId)).FirstOrDefaultAsync();
+            user.LastUpdatedDate = DateTime.Now;
+            user.LastUpdatedBy = userId;
+            user.Name = request.Name;
+            user.Email = request.Email;
+            user.Phone = request.Phone;
+            if (request.UpdatePassword)
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            }
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<UserResponseDTO>(user);
+        }
+
+        public async Task<bool> DeleteData(string userId)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId)).FirstOrDefaultAsync();
+            user.ActiveFlag = false;
+            user.LastUpdatedDate = DateTime.Now;
+            user.LastUpdatedBy = userId;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
     }
 }

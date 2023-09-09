@@ -22,10 +22,11 @@ namespace LostFoundAngkasaPura.Controllers.User
         private readonly IItemCommentService _itemComment;
         private readonly IUserNotificationService _userNotificationService;
 
-        public ItemClaimController(IItemClaimService itemClaim, IItemCommentService itemComment)
+        public ItemClaimController(IItemClaimService itemClaim, IItemCommentService itemComment, IUserNotificationService userNotificationService)
         {
             _itemClaim = itemClaim;
             _itemComment = itemComment;
+            _userNotificationService = userNotificationService;
         }
 
         [HttpGet]

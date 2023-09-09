@@ -41,7 +41,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             var itemFound = await _unitOfWork.ItemFoundRepository.Where(t=>t.Id.Equals(itemFoundId)).FirstOrDefaultAsync();
             if (itemFound == null) throw new NotFoundError();
             var response = await UpdateStatus(ItemFoundStatus.Closed, userId, itemFound);
-            var listItemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.ItemFoundId.Equals(itemFound)).ToListAsync();
+            var listItemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.ItemFoundId.Equals(itemFoundId)).ToListAsync();
 
             //update not approved status
             var updateStatus = listItemClaim.Where(t=>!t.Status.Equals(ItemFoundStatus.Approved)).ToList();

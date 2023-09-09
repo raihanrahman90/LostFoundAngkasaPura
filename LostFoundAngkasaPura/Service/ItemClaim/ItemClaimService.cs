@@ -152,6 +152,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             var query = _unitOfWork.ItemClaimRepository
                                     .Include(t => t.ItemFound)
                                     .Include(t => t.User)
+                                    .Include(t => t.ItemClaimApproval)
                                     .Where(t =>
                                     t.ActiveFlag &&
                                     (isAdmin || t.UserId.Equals(userId))

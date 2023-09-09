@@ -9,6 +9,7 @@ using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.ItemClaim;
 using LostFoundAngkasaPura.Service.ItemComment;
 using LostFoundAngkasaPura.Service.ItemFound;
+using LostFoundAngkasaPura.Service.UserNotification;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LostFoundAngkasaPura.Controllers.User
@@ -19,6 +20,7 @@ namespace LostFoundAngkasaPura.Controllers.User
     {
         private readonly IItemClaimService _itemClaim;
         private readonly IItemCommentService _itemComment;
+        private readonly IUserNotificationService _userNotificationService;
 
         public ItemClaimController(IItemClaimService itemClaim, IItemCommentService itemComment)
         {
@@ -50,6 +52,7 @@ namespace LostFoundAngkasaPura.Controllers.User
             var result = await _itemClaim.ClaimItem(request, userId);
             return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
+
         [HttpGet("{itemClaimId}")]
         [ProducesResponseType(typeof(DefaultResponse<ItemClaimResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
@@ -60,6 +63,7 @@ namespace LostFoundAngkasaPura.Controllers.User
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
             await _itemClaim.ValidateUser(itemClaimId, userId);
             var result = await _itemClaim.GetItemClaimDetail(itemClaimId);
+            await _userNotificationService.DeleteNotification(userId, itemClaimId);
             return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
 

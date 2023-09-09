@@ -9,6 +9,6 @@ namespace LostFoundAngkasaPura.Service.UserNotification
         Task NewComment(string adminId, string itemClaimId, string itemName);
         Task Approve(string userId, string itemClaimId, string itemName);
         Task Reject(string userId, string itemClaimId, string itemName);
-        Task DeleteNotification(string adminId, string itemClaimId);
+        Task DeleteNotification(string userId, string itemClaimId);
     }
 }

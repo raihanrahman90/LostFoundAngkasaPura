@@ -54,7 +54,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                             null:
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).First().ClaimDate.Value.ToString("yyyy-MM-dd")
                         ))
-                .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation));
+                .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
+                .ForMember(t => t.RejectReason, t=> t.MapFrom(d => d.ItemClaimApproval.Where(t=>t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason));
 
             })
             {

@@ -65,41 +65,51 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
 
         public async Task<ItemClaimResponseDTO> ClaimItem(ItemClaimRequestDTO request, string userId)
         {
-            var itemClaim = new DAL.Model.ItemClaim()
+            var transaction = await _unitOfWork.CreateSavepoint(userId);
+            try
             {
-                ActiveFlag = true,
-                CreatedBy = userId,
-                CreatedDate = DateTime.Now,
-                ItemFoundId = request.ItemFoundId,
-                ProofDescription = request.ProofDescription,
-                IdentityNumber = request.IdentityNumber,
-                IdentityType = request.IdentityType,
-                Status = ItemFoundStatus.Confirmation,
-                UserId = userId,
-            };
-            if (!String.IsNullOrWhiteSpace(request.ProofImageBase64))
+                var itemClaim = new DAL.Model.ItemClaim()
+                {
+                    ActiveFlag = true,
+                    CreatedBy = userId,
+                    CreatedDate = DateTime.Now,
+                    ItemFoundId = request.ItemFoundId,
+                    ProofDescription = request.ProofDescription,
+                    IdentityNumber = request.IdentityNumber,
+                    IdentityType = request.IdentityType,
+                    Status = ItemFoundStatus.Confirmation,
+                    UserId = userId,
+                };
+                if (!String.IsNullOrWhiteSpace(request.ProofImageBase64))
+                {
+                    var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ProofImageBase64);
+                    var fileName = $"{userId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
+                    var fileLocation = _uploadLocation.ItemClaimLocation(fileName);
+                    GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
+                    itemClaim.ProofImage = fileLocation;
+                }
+                else throw new DataMessageError(ErrorMessageConstant.ImageEmpty);
+                var itemFound = await _unitOfWork.ItemFoundRepository.Include(t => t.Admin).Where(t => t.Id.Equals(request.ItemFoundId)).FirstOrDefaultAsync();
+                if (!itemFound.Status.ToLower().Equals(ItemFoundStatus.Found.ToLower()))
+                    throw new DataMessageError(ErrorMessageConstant.ItemInClaimProgress);
+                await _itemFoundService.UpdateStatus(ItemFoundStatus.Confirmation, userId, itemFound);
+                await _unitOfWork.ItemClaimRepository.AddAsync(itemClaim);
+                await _unitOfWork.SaveAsync();
+                var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
+                result.ItemFoundId = itemFound.Id;
+                result.Image = itemFound.Image;
+                result.Name = itemFound.Name;
+                result.Description = itemFound.Description;
+                await _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
+                await _mailerService.CreateClaim(itemFound.Admin.Email, result.Id);
+                transaction.Commit();
+                return result;
+            } catch (Exception e)
             {
-                var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ProofImageBase64);
-                var fileName = $"{userId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
-                var fileLocation = _uploadLocation.ItemClaimLocation(fileName);
-                GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
-                itemClaim.ProofImage = fileLocation;
+                transaction.RollbackToSavepoint(userId);
+                throw e;
             }
-            else throw new DataMessageError(ErrorMessageConstant.ImageEmpty);
-            var itemFound = await _unitOfWork.ItemFoundRepository.Include(t=>t.Admin).Where(t => t.Id.Equals(request.ItemFoundId)).FirstOrDefaultAsync();
-            if (!itemFound.Status.ToLower().Equals(ItemFoundStatus.Found.ToLower()))
-                throw new DataMessageError(ErrorMessageConstant.ItemInClaimProgress);
-            await _itemFoundService.UpdateStatus(ItemFoundStatus.Confirmation, userId, itemFound);
-            await _unitOfWork.ItemClaimRepository.AddAsync(itemClaim);
-            await _unitOfWork.SaveAsync();
-            var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
-            result.ItemFoundId = itemFound.Id;
-            result.Image = itemFound.Image;
-            result.Name = itemFound.Name;
-            result.Description = itemFound.Description;
-            await _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
-            await _mailerService.CreateClaim(itemFound.Admin.Email, result.Id);
-            return result;
+            
         }
 
         private void ApproveRejectConfirmation(DAL.Model.ItemClaim? itemClaim, DAL.Model.ItemFound itemFound)
@@ -231,6 +241,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                                      .Include(t=>t.User)
                                      .Include(t=>t.ItemFound)
                                      .Include(t=>t.ItemClaimApproval)
+                                     .ThenInclude(t=>t.Admin)
                                     .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
                                     .Select(t => _mapper.Map<ItemClaimResponseDTO>(t)).FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();

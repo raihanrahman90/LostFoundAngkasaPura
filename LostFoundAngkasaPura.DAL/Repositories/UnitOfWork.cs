@@ -1,5 +1,6 @@
 ﻿using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 
 namespace LostFoundAngkasaPura.DAL.Repositories
@@ -41,6 +42,13 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public void Save()
         {
             this.dbContext.SaveChanges();
+        }
+
+        public async Task<IDbContextTransaction> CreateSavepoint(string name)
+        {
+            var transaction = await this.dbContext.Database.BeginTransactionAsync();
+            transaction.CreateSavepointAsync(name);
+            return transaction;
         }
     }
 }

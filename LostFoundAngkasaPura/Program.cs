@@ -71,7 +71,6 @@ string mySqlConnectionStr = configuration.GetConnectionString("DefaultConnection
 builder.Services.AddDbContext<LostFoundDbContext>(p => p.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
 
 
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -187,6 +186,12 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LostFoundDbContext>();
+    db.Database.Migrate();
+}
 
 app.MapControllers();
 

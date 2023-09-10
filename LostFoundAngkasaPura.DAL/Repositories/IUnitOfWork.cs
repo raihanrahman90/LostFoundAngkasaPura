@@ -1,5 +1,6 @@
 ﻿using LostFoundAngkasaPura.DAL.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace LostFoundAngkasaPura.DAL.Repositories
 {
@@ -17,5 +18,6 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         public DbSet<UserNotification> UserNotificationRepository { get; set; }
         Task SaveAsync();
         void Save();
+        Task<IDbContextTransaction> CreateSavepoint(string name);
     }
 }

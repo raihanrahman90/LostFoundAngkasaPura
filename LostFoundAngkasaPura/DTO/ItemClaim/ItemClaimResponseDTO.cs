@@ -19,6 +19,7 @@
         public string? ClaimLocation { get; set; }
         public string? ClaimDate { get; set; }
         public string? RejectReason { get; set; }
+        public string? ApprovalBy { get; set; }
         public DateTime? CreatedDate { get; set; }
 
     }

@@ -11,5 +11,8 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string? ClaimLocation { get; set; }
         public DateTime? ClaimDate { get; set; }
         public string? RejectReason { get; set; }
+        public string? AdminId { get; set; }
+        [ForeignKey("AdminId")]
+        public Admin? Admin { get; set; }
     }
 }

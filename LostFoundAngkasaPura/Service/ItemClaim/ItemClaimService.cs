@@ -49,14 +49,14 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 .ForMember(t => t.UserPhoneNumber, t => t.MapFrom(d => d.User.Phone))
                 .ForMember(t => t.UserEmail, t => t.MapFrom(d => d.User.Email))
                 .ForMember(t => t.ItemFoundStatus, t => t.MapFrom(d => d.ItemFound.Status))
-                .ForMember(t => t.ClaimDate, t => t.MapFrom(d => 
-                            d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault()==null?
-                            null:
+                .ForMember(t => t.ClaimDate, t => t.MapFrom(d =>
+                            d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault() == null ?
+                            null :
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).First().ClaimDate.Value.ToString("yyyy-MM-dd")
                         ))
                 .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
-                .ForMember(t => t.RejectReason, t=> t.MapFrom(d => d.ItemClaimApproval.Where(t=>t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason));
-
+                .ForMember(t => t.RejectReason, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason))
+                .ForMember(t => t.ApprovalBy, t => t.MapFrom(d => d.ItemClaimApproval.LastOrDefault().Admin.Name));
             })
             {
 
@@ -131,7 +131,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 Status = ItemFoundStatus.Approved,
                 ClaimDate = request.ClaimDate,
                 ClaimLocation = request.ClaimLocation,
-                ItemClaimId = itemClaimId
+                ItemClaimId = itemClaimId,
+                AdminId = userId
             };
             _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);

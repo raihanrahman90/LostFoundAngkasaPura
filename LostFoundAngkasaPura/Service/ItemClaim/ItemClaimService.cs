@@ -208,7 +208,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 ActiveFlag = true,
                 Status = ItemFoundStatus.Rejected,
                 RejectReason = request.RejectReason,
-                ItemClaimId = itemClaimId
+                ItemClaimId = itemClaimId,
+                AdminId = userId
             };
             _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             _unitOfWork.ItemClaimRepository.Update(itemClaim);

@@ -239,5 +239,19 @@ namespace LostFoundAngkasaPura.Service.Admin
                 Email = request.Email
             };
         }
+
+        public async Task<AdminResponseDTO> UpdateAdmin(AdminCreateRequestDTO request, string adminUpdateId, string adminId)
+        {
+            var isEmailUsed = await _unitOfWork.AdminRepository.Where(t => !t.Id.Equals(adminUpdateId) && request.Email.Equals(t.Email)).AnyAsync();
+            if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
+            var admin = await _unitOfWork.AdminRepository.Where(t=>t.Id.Equals(adminUpdateId)).FirstOrDefaultAsync();
+            admin.Email = request.Email;
+            admin.Unit = request.Unit;
+            admin.Access = request.Access;
+            admin.Name = request.Name;
+            _unitOfWork.AdminRepository.Update(admin);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<AdminResponseDTO>(admin);
+        }
     }
 }

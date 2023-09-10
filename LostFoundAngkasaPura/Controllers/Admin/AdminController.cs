@@ -61,6 +61,17 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             return new OkObjectResult(new DefaultResponse<AdminResponseDTO>(result));
         }
 
+        [HttpPut("{adminId}")]
+        [CustomAuthorize(true, true)]
+        public async Task<IActionResult> UpdateAdmin(
+            [FromBody] AdminCreateRequestDTO request,
+            [FromRoute] string adminId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            var result = await _adminService.UpdateAdmin(request, adminId, userId);
+            return new OkObjectResult(new DefaultResponse<AdminResponseDTO>(result));
+        }
+
         [HttpDelete("{adminId}")]
         [ProducesResponseType(typeof(DefaultResponse<AdminResponseDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]

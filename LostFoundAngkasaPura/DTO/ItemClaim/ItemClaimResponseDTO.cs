@@ -21,6 +21,6 @@
         public string? RejectReason { get; set; }
         public string? ApprovalBy { get; set; }
         public DateTime? CreatedDate { get; set; }
-
+        public int? Rating { get; set; }
     }
 }

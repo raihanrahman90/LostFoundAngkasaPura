@@ -92,5 +92,18 @@ namespace LostFoundAngkasaPura.Controllers.User
             var result = await _itemComment.AddComment(request, userId, null);
             return new OkObjectResult(new DefaultResponse<ItemCommentResponseDTO>(result));
         }
+
+        [HttpPost("{itemClaimId}/rating")]
+        [ProducesResponseType(typeof(DefaultResponse<ItemClaimResponseDTO>), 200)]
+        [CustomAuthorize]
+        public async Task<IActionResult> AddRating(
+            [FromBody] RatingRequestDTO request,
+            [FromRoute] string itemClaimId)
+        {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
+            await _itemClaim.ValidateUser(itemClaimId, userId);
+            var result = await _itemClaim.AddRating(request, itemClaimId, userId);
+            return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
+        }
     }
 }

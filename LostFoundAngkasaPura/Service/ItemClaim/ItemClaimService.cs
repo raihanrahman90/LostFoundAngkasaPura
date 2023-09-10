@@ -254,5 +254,17 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             if (!claimerId.Equals(userId))
                 throw new NotAuthorizeError();
         }
+
+        public async Task<ItemClaimResponseDTO> AddRating(RatingRequestDTO request, string itemClaimId, string userId)
+        {
+            await ValidateUser(itemClaimId, userId);
+            var itemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.Id.Equals(itemClaimId)).FirstOrDefaultAsync();
+            itemClaim.Rating = request.Rating;
+            itemClaim.LastUpdatedBy = userId;
+            itemClaim.LastUpdatedDate = DateTime.Now;
+            _unitOfWork.ItemClaimRepository.Update(itemClaim);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ItemClaimResponseDTO>(itemClaim);
+        }
     }
 }

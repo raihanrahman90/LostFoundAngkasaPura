@@ -13,5 +13,6 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         Task<ItemClaimResponseDTO> ApproveClaim(ItemClaimApproveRequestDTO request, string itemClaimId, string userId);
         Task<ItemClaimResponseDTO> RejectClaim(ItemClaimRejectRequestDTO request, string itemClaimId, string userId);
         Task ValidateUser(string itemClaimId, string userId);
+        Task<ItemClaimResponseDTO> AddRating(RatingRequestDTO request, string itemClaimId, string userId);
     }
 }

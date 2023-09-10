@@ -16,6 +16,7 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string IdentityType { get; set; }
         public string IdentityNumber { get; set; }
         public string Status { get; set; }
+        public int? Rating { get; set; }
         [JsonIgnore]
         public List<ItemClaimApproval>? ItemClaimApproval { get; set; }
     }

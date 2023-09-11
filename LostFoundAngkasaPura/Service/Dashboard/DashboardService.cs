@@ -185,5 +185,116 @@ namespace LostFoundAngkasaPura.Service.Dashboard
         {
             return new DateTime(year, month, 1, 0, 0, 0);
         }
+
+        public async Task<DashboardGrafikData> GetGrafikRating(DateTime? startDate, DateTime? endDate, string type)
+        {
+            DateTime startFilter, endFilter;
+            if (startDate == null && endDate == null)
+            {
+                startFilter = DateTime.Now;
+                endFilter = await _unitOfWork.ItemFoundRepository.OrderBy(t => t.FoundDate).Select(t => t.FoundDate).FirstOrDefaultAsync();
+            }
+            else if ((startDate == null && endDate != null) || (endDate == null && startDate != null))
+                throw new DataMessageError(ErrorMessageConstant.PleaseFillBothDate);
+            else
+            {
+                startFilter = (DateTime)startDate;
+                endFilter = (DateTime)endDate;
+            }
+            startFilter = getFirstDay(startFilter.Year, startFilter.Month);
+            endFilter = getLastDay(endFilter.Year, endFilter.Month);
+            var labels = GetLabels(startFilter, endFilter);
+            var dataComplete = await _unitOfWork.ItemFoundRepository.Where(t =>
+                    t.Status.ToLower().Equals(ItemFoundStatus.Closed.ToLower()) &&
+                    t.ActiveFlag)
+                .GroupBy(t => new { Month = t.FoundDate.Month, Year = t.FoundDate.Year })
+                .Select(t => new { Month = t.Key.Month, Year = t.Key.Year, Count = t.Count() })
+                .ToDictionaryAsync(t => $"{t.Month}-{t.Year}", t => t.Count);
+            var dataWaiting = await _unitOfWork.ItemFoundRepository.Where(t =>
+                    t.Status.ToLower().Equals(ItemFoundStatus.Closed.ToLower()) &&
+                    t.ActiveFlag &&
+                    t.FoundDate >= startFilter &&
+                    t.FoundDate <= endFilter)
+                .GroupBy(t => new { Month = t.FoundDate.Month, Year = t.FoundDate.Year })
+                .Select(t => new { Month = t.Key.Month, Year = t.Key.Year, Count = t.Count() })
+                .ToDictionaryAsync(t => $"{t.Month}-{t.Year}", t => t.Count);
+            var dataFound = await _unitOfWork.ItemFoundRepository
+                .Where(t =>
+                    t.Status.ToLower().Equals(ItemFoundStatus.Closed.ToLower()) &&
+                    t.ActiveFlag &&
+                    t.FoundDate >= startFilter &&
+                    t.FoundDate <= endFilter)
+                .GroupBy(t => new { Month = t.FoundDate.Month, Year = t.FoundDate.Year })
+                .Select(t => new { Month = t.Key.Month, Year = t.Key.Year, Count = t.Count() })
+                .ToDictionaryAsync(t => $"{t.Month}-{t.Year}", t => t.Count);
+            var dataClaim = await _unitOfWork.ItemClaimRepository.Where(t =>
+                    t.ActiveFlag &&
+                    t.CreatedDate >= startFilter &&
+                    t.CreatedDate <= endFilter)
+                .GroupBy(t => new { Month = t.CreatedDate.Value.Month, Year = t.CreatedDate.Value.Year })
+                .Select(t => new { Month = t.Key.Month, Year = t.Key.Year, Count = t.Count() })
+                .ToDictionaryAsync(t => $"{t.Month}-{t.Year}", t => t.Count);
+            var datasetComplete = new DashboardDataset()
+            {
+                Label = "Closed",
+                Data = labels.Select(t => dataComplete.ContainsKey(t) ? dataComplete[t] : 0).ToList(),
+                BorderColor = "#3498db",
+                BackgroundColor = "#3498db"
+            };
+            var datasetWaiting = new DashboardDataset()
+            {
+                Label = "Waiting",
+                Data = labels.Select(t => dataWaiting.ContainsKey(t) ? dataWaiting[t] : 0).ToList(),
+                BorderColor = "#f1c40f",
+                BackgroundColor = "#f1c40f"
+            };
+            var datasetFound = new DashboardDataset()
+            {
+                Label = "Found",
+                Data = labels.Select(t => dataFound.ContainsKey(t) ? dataFound[t] : 0).ToList(),
+                BorderColor = "#34495e",
+                BackgroundColor = "#34495e"
+            };
+            var datasetClaim = new DashboardDataset()
+            {
+                Label = "Claim",
+                Data = labels.Select(t => dataClaim.ContainsKey(t) ? dataClaim[t] : 0).ToList(),
+                BorderColor = "#3498db",
+                BackgroundColor = "#3498db"
+            };
+            return new DashboardGrafikData()
+            {
+                Labels = labels,
+                Datasets = new List<DashboardDataset>()
+                {
+                    datasetComplete, datasetWaiting, datasetFound, datasetClaim
+                }
+            };
+        }
+
+        private List<string> GetLabels(DateTime startFilter, DateTime endFilter)
+        {
+            var labels = new List<string>();
+            for (int i = startFilter.Year; i <= endFilter.Year; i++)
+            {
+                var startMonth = startFilter.Year == i ? startFilter.Month : 1;
+                var endMonth = endFilter.Year == i ? endFilter.Month : 12;
+                for (int j = startMonth; j <= endMonth; j++)
+                {
+                    labels.Add($"{j}-{i}");
+                }
+            }
+            return labels;
+        }
+
+        private async Task<List<int>> GetRating(DateTime startDate, DateTime endDate, int rating)
+        {
+            var rating = await _unitOfWork.ItemClaimRepository.Where(t=>)
+        }
+
+        public Task<byte[]> GrafikToExcel(DateTime? startDate, DateTime? endDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

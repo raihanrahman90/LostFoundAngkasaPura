@@ -20,5 +20,11 @@
             public readonly static string Approved = "Approved";
             public readonly static string Rejected = "Rejected";
         }
+
+        public class GrafikType
+        {
+            public readonly static string Average = "Average";
+            public readonly static string Group = "Group";
+        }
     }
 }

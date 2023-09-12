@@ -2,12 +2,9 @@
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
-using LostFoundAngkasaPura.DTO.ItemClaim;
 using LostFoundAngkasaPura.DTO.ItemFound;
-using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.Mailer;
-using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 using static LostFoundAngkasaPura.Constant.Constant;
@@ -27,21 +24,29 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             _unitOfWork = unitOfWork;
             _mailerService = mailerService;
             _itemCategoryService = itemCategoryService;
+            _uploadLocation = uploadLocation;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemFound, ItemFoundResponseDTO>()
                 .ForMember(t=>t.Image, t=>t.MapFrom(d=>_uploadLocation.Url(d.Image)))
-                .ForMember(t=>t.FoundDate, t=>t.MapFrom(d=>d.FoundDate.ToString("yyyy-MM-dd")));
+                .ForMember(t=>t.FoundDate, t=>t.MapFrom(d=>d.FoundDate.ToString("yyyy-MM-dd")))
+                .ForMember(t=>t.ImageClosing, t=>t.MapFrom(d=>String.IsNullOrWhiteSpace(d.ClosingImage)?null:_uploadLocation.WebsiteUrl(d.ClosingImage)));
             }));
-            _uploadLocation = uploadLocation;
         }
 
-        public async Task<ItemFoundResponseDTO> ClosedItem(string itemFoundId, string userId)
+        public async Task<ItemFoundResponseDTO> ClosedItem(ItemFoundClosingRequestDTO request, string itemFoundId, string userId)
         {
             var itemFound = await _unitOfWork.ItemFoundRepository.Where(t=>t.Id.Equals(itemFoundId)).FirstOrDefaultAsync();
             if (itemFound == null) throw new NotFoundError();
-            var response = await UpdateStatus(ItemFoundStatus.Closed, userId, itemFound);
+            
+            //upload closing image
+            var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.Image);
+            if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
+                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+            var pathImageClosing = _uploadLocation.ClosingLocation($"{itemFoundId}.{extension}");
+            var response = await UpdateStatusAndClosingImage(ItemFoundStatus.Closed, pathImageClosing, userId, itemFound);
             var listItemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.ItemFoundId.Equals(itemFoundId)).ToListAsync();
+            GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(pathImageClosing));
 
             //update not approved status
             var updateStatus = listItemClaim.Where(t=>!t.Status.Equals(ItemFoundStatus.Approved)).ToList();
@@ -130,6 +135,17 @@ namespace LostFoundAngkasaPura.Service.ItemFound
 
         public async Task<ItemFoundResponseDTO> UpdateStatus(string status, string userId, DAL.Model.ItemFound itemFound)
         {
+            itemFound.Status = status;
+            itemFound.LastUpdatedDate = DateTime.Now;
+            itemFound.LastUpdatedBy = userId;
+            _unitOfWork.ItemFoundRepository.Update(itemFound);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ItemFoundResponseDTO>(itemFound);
+        }
+
+        private async Task<ItemFoundResponseDTO> UpdateStatusAndClosingImage(string status, string pathImage, string userId, DAL.Model.ItemFound itemFound)
+        {
+            itemFound.ClosingImage = pathImage;
             itemFound.Status = status;
             itemFound.LastUpdatedDate = DateTime.Now;
             itemFound.LastUpdatedBy = userId;

@@ -90,10 +90,11 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [ProducesResponseType(typeof(string), 400)]
         [CustomAuthorize(true, false)]
         public async Task<IActionResult> ClosedItemFound(
-            [FromRoute] string itemId)
+            [FromRoute] string itemId,
+            [FromBody] ItemFoundClosingRequestDTO request)
         {
             var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
-            var result = await _itemFound.ClosedItem(itemId, userId);
+            var result = await _itemFound.ClosedItem(request, itemId, userId);
             return new OkObjectResult(new DefaultResponse<ItemFoundResponseDTO>(result));
         }
 

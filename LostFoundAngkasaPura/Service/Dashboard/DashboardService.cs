@@ -289,10 +289,15 @@ namespace LostFoundAngkasaPura.Service.Dashboard
 
         private async Task<List<int>> GetRating(DateTime startDate, DateTime endDate, int rating)
         {
-            var rating = await _unitOfWork.ItemClaimRepository.Where(t=>)
+            var listRating = await _unitOfWork.ItemClaimRepository.Where(t => 
+                        t.CreatedDate >= startDate && t.CreatedDate <= endDate && t.Rating == rating)
+                .GroupBy(t => new { Month = t.CreatedDate.Value.Month, Year = t.CreatedDate.Value.Year })
+                .Select(t=>t.Count())
+                .ToListAsync();
+            return listRating;
         }
 
-        public Task<byte[]> GrafikToExcel(DateTime? startDate, DateTime? endDate)
+        public Task<byte[]> GrafikToExcel(DateTime? startDate, DateTime? endDate, string? type)
         {
             throw new NotImplementedException();
         }

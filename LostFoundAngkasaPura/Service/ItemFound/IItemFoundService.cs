@@ -10,6 +10,6 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         Task<ItemFoundResponseDTO> CreateItemFound(ItemFoundCreateRequestDTO request, string adminId);
         Task<ItemFoundResponseDTO> UpdateItemFound(ItemFoundCreateRequestDTO request, string itemFoundId, string adminId);
         Task<ItemFoundResponseDTO> UpdateStatus(string status, string userId,DAL.Model.ItemFound itemFound);
-        Task<ItemFoundResponseDTO> ClosedItem(string itemFoundId, string userId);
+        Task<ItemFoundResponseDTO> ClosedItem(ItemFoundClosingRequestDTO rquest, string itemFoundId, string userId);
     }
 }

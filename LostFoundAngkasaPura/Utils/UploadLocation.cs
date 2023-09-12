@@ -38,6 +38,11 @@
             return $"comentar/{fileName}";
         }
 
+        public string ClosingLocation(string fileName)
+        {
+            return $"closing/{fileName}";
+        }
+
         public string WebsiteUrl(string path)
         {
             return $"{_urlWebsite}/{path}";

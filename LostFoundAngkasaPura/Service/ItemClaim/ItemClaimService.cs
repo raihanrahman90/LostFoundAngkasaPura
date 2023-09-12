@@ -55,7 +55,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).First().ClaimDate.Value.ToString("yyyy-MM-dd")
                         ))
                 .ForMember(t => t.ImageClosing, t => t.MapFrom(d => 
-                        String.IsNullOrWhiteSpace(d.ItemFound.ClosingImage)?null:_uploadLocation.WebsiteUrl(d.ItemFound.ClosingImage)))
+                        String.IsNullOrWhiteSpace(d.ItemFound.ClosingImage)?null:_uploadLocation.Url(d.ItemFound.ClosingImage)))
                 .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
                 .ForMember(t => t.RejectReason, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason))
                 .ForMember(t => t.ApprovalBy, t => t.MapFrom(d => d.ItemClaimApproval.LastOrDefault().Admin.Name));

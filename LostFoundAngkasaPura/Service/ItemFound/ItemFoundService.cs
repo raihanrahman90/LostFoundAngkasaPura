@@ -30,7 +30,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
                 t.CreateMap<DAL.Model.ItemFound, ItemFoundResponseDTO>()
                 .ForMember(t=>t.Image, t=>t.MapFrom(d=>_uploadLocation.Url(d.Image)))
                 .ForMember(t=>t.FoundDate, t=>t.MapFrom(d=>d.FoundDate.ToString("yyyy-MM-dd")))
-                .ForMember(t=>t.ImageClosing, t=>t.MapFrom(d=>String.IsNullOrWhiteSpace(d.ClosingImage)?null:_uploadLocation.WebsiteUrl(d.ClosingImage)));
+                .ForMember(t=>t.ImageClosing, t=>t.MapFrom(d=>String.IsNullOrWhiteSpace(d.ClosingImage)?null:_uploadLocation.Url(d.ClosingImage)));
             }));
         }
 

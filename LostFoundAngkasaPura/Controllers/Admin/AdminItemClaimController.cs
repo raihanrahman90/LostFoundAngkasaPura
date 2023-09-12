@@ -1,6 +1,7 @@
 ﻿using LostFound.Authorize;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.ItemClaim;
+using LostFoundAngkasaPura.Service.AdminNotification;
 using LostFoundAngkasaPura.Service.ItemClaim;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,13 @@ namespace LostFoundAngkasaPura.Controllers.Admin
     public class ItemClaimController : ControllerBase
     {
         private readonly IItemClaimService _itemClaim;
+        private readonly IAdminNotificationService _adminNotification;
 
         public ItemClaimController(
-            IItemClaimService itemClaim)
+            IItemClaimService itemClaim, IAdminNotificationService adminNotification)
         {
             _itemClaim = itemClaim;
+            _adminNotification = adminNotification;
         }
 
         [HttpGet]
@@ -39,7 +42,9 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         public async Task<IActionResult> GetDetailItemClaim(
             [FromRoute] string itemClaimId)
         {
+            var userId = User.Claims.Where(t => t.Type.Equals("Id")).FirstOrDefault().Value;
             var result = await _itemClaim.GetItemClaimDetail(itemClaimId);
+            await _adminNotification.DeleteNotification(userId, itemClaimId);
             return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
 

@@ -50,7 +50,7 @@ namespace LostFoundAngkasaPura.Controllers.Admin
         [ProducesResponseType(typeof(File), 200)]
         [ProducesResponseType(typeof(string), 400)]
         [CustomAuthorize(true)]
-        public async Task<IActionResult> DowloadToExcel(
+        public async Task<FileResult> DowloadToExcel(
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null)
         {

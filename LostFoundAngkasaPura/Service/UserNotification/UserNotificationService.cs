@@ -43,19 +43,7 @@ namespace LostFoundAngkasaPura.Service.UserNotification
             await DeleteNotification(userId, itemClaimId);
             var title = "Admin menambahkan komentar baru";
             var subtitle = $"Terdapat komentar baru terhadap claim pada '{itemName}'";
-            var notification = new DAL.Model.UserNotification()
-            {
-                CreatedBy = "System",
-                CreatedDate = DateTime.Now,
-                ActiveFlag = true,
-                UserId = userId,
-                ItemClaimId = itemClaimId,
-                Title = title,
-                Subtitle = subtitle,
-                Url = $"/Claim/{itemClaimId}"
-            };
-            await _unitOfWork.UserNotificationRepository.AddAsync(notification);
-            await _unitOfWork.SaveAsync();
+            await addNotification(itemClaimId, userId, title, subtitle);
         }
 
         public async Task Approve(string userId, string itemClaimId, string itemName)
@@ -63,19 +51,7 @@ namespace LostFoundAngkasaPura.Service.UserNotification
             await DeleteNotification(userId, itemClaimId);
             var title = "Admin telah menyetujui klaim Anda";
             var subtitle = $"Lihat detail pengambilan pada halaman claim";
-            var notification = new DAL.Model.UserNotification()
-            {
-                CreatedBy = "System",
-                CreatedDate = DateTime.Now,
-                ActiveFlag = true,
-                UserId = userId,
-                ItemClaimId = itemClaimId,
-                Title = title,
-                Subtitle = subtitle,
-                Url = $"/Claim/{itemClaimId}"
-            };
-            await _unitOfWork.UserNotificationRepository.AddAsync(notification);
-            await _unitOfWork.SaveAsync();
+            await addNotification(itemClaimId, userId, title, subtitle);
         }
 
         public async Task Reject(string userId, string itemClaimId, string itemName)
@@ -83,6 +59,19 @@ namespace LostFoundAngkasaPura.Service.UserNotification
             await DeleteNotification(userId, itemClaimId);
             var title = "Admin telah menolak klaim Anda";
             var subtitle = $"Lihat detail penolakan pada halaman claim";
+            await addNotification(itemClaimId, userId, title, subtitle);
+        }
+
+        public async Task Closing(string userId, string itemClaimId, string itemName)
+        {
+            await DeleteNotification(userId, itemClaimId);
+            var title = "Admin telah melakukan closing pada claim Anda";
+            var subtitle = $"Berikan rating pada pelayan Lost & Found";
+            await addNotification(itemClaimId, userId, title, subtitle);
+        }
+
+        private async Task addNotification(string itemClaimId,string userId, string title, string subtitle)
+        {
             var notification = new DAL.Model.UserNotification()
             {
                 CreatedBy = "System",

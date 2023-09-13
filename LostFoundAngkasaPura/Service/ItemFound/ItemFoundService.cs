@@ -5,6 +5,7 @@ using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.DTO.ItemFound;
 using LostFoundAngkasaPura.Service.ItemCategory;
 using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 using static LostFoundAngkasaPura.Constant.Constant;
@@ -17,6 +18,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         private readonly IMailerService _mailerService;
         private readonly IItemCategoryService _itemCategoryService;
         private readonly UploadLocation _uploadLocation;
+        private readonly IUserNotificationService _userNotificationService;
         private IMapper _mapper;
 
         public ItemFoundService(IUnitOfWork unitOfWork, IMailerService mailerService, UploadLocation uploadLocation, IItemCategoryService itemCategoryService)
@@ -63,6 +65,12 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             _unitOfWork.AdminNotificationRepository.RemoveRange(deleteAdminNotif);
             _unitOfWork.UserNotificationRepository.RemoveRange(deleteUserNotif);
             await _unitOfWork.SaveAsync();
+
+            //send notification
+            var approvedClaim = await _unitOfWork.ItemClaimRepository
+                .Where(t => t.ItemFoundId.Equals(itemFoundId) && t.Status.Equals(ItemFoundStatus.Approved))
+                .FirstOrDefaultAsync();
+            if (approvedClaim != null) await _userNotificationService.Closing(approvedClaim.UserId, approvedClaim.Id, itemFound.Name);
 
             return response;
         }

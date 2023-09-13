@@ -262,6 +262,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             await ValidateUser(itemClaimId, userId);
             var itemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.Id.Equals(itemClaimId)).FirstOrDefaultAsync();
             itemClaim.Rating = request.Rating;
+            itemClaim.RatingComentar = request.RatingComentar;
             itemClaim.LastUpdatedBy = userId;
             itemClaim.LastUpdatedDate = DateTime.Now;
             _unitOfWork.ItemClaimRepository.Update(itemClaim);

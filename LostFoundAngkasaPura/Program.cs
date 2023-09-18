@@ -115,8 +115,13 @@ builder.Services.AddCors(options =>
             .WithExposedHeaders("Content-Disposition");
         });
 });
+
+builder.Services.AddSingleton<LoggerUtils>();
+builder.Services.AddSingleton<UploadLocation>();
+
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<JwtSecurityTokenHandler>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IAdminNotificationService, AdminNotificationService>();
@@ -130,8 +135,6 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserNotificationService, UserNotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMailerService, MailerService>();
-builder.Services.AddSingleton<UploadLocation>();
-
 
 var app = builder.Build();
 var scopedFactory = app.Services.GetService<IServiceScopeFactory>();

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using MimeKit.Text;
 using MimeKit;
 using MailKit.Net.Smtp;
+using System;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace LostFoundAngkasaPura.Service.Mailer
 {
@@ -58,7 +60,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "<p>" +
                 "User melakukan claim terhadap item yang Anda upload, lihat detail claim pada lin berikut" +
                 "</p>" +
-                $"<a href='{UrlWebsite}/admin/ItemClaim/{id}'>link</a></p>";
+                $"<p><a href='{UrlWebsite}/admin/ItemClaim/{id}'>link</a></p>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
@@ -77,14 +79,38 @@ namespace LostFoundAngkasaPura.Service.Mailer
 
         public async Task RejectClaim(string email, string reason, string url)
         {
-            var subject = "Lost & Found SAMS Sepinggan Login Credential";
+            var subject = "Claim barang";
             var body = "" +
                 "<p>" +
                 "Proses klaim barang Anda telah ditolak oleh Admin Lost & Found Bandara SAMS Sepinggan Balikpapan " +
                 "dengan alasan sebagai berikut" +
                 "</p>" +
                 $"<p>Alasan : {reason}</p>" +
-                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a>";
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a></p>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
+        public async Task SendCommentToAdmin(string email, string itemClaimId)
+        {
+            var subject = "Claim barang";
+            var body = "" +
+                "<p>" +
+                "User telah memberikan keterangan tambahan pada claimnya, lihat pada link berikut" +
+            "</p>" +
+                $"<p><a href='{UrlWebsite}/admin/ItemClaim/{itemClaimId}'>link</a></p>";
+            var html = TemplateEmail(body);
+            await Send(email, subject, html);
+        }
+
+        public async Task SendCommentToUser(string email, string itemClaimId)
+        {
+            var subject = "Claim barang";
+            var body = "" +
+                "<p>" +
+                "Admin telah memberikan keterangan tambahan pada claimnya, lihat pada link berikut" +
+                "</p>" +
+                $"<p><a href='{UrlWebsite}/admin/ItemClaim/{itemClaimId}'>link</a></p>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
@@ -119,7 +145,6 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "<head>" +
                 "</head>" +
                 "<body>" +
-                "   <img src='https://ogfs-bpn.sepinggan-airport.com/Bandara/assets/logo.png' alt='logo'/>" +
                 body +
                 "</body>" +
                 "</html>";

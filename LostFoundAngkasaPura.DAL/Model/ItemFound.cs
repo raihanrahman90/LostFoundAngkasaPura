@@ -9,10 +9,10 @@ namespace LostFoundAngkasaPura.DAL.Model
         public string Category { get; set; }
         public string Image { get; set; }
         public string Status { get; set; }
-        public string AdminId { get; set; }
-        public string? ClosingImage { get; set; }
         public DateTime FoundDate { get; set; }
+        public string AdminId { get; set; }
         [ForeignKey("AdminId")]
         public Admin Admin { get; set; }
+        public ClosingDocumentation ClosingDocumentation { get; set; }
     }
 }

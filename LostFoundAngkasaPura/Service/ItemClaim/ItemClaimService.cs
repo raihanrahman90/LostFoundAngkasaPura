@@ -22,6 +22,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         private readonly IAdminNotificationService _adminNotificationService;
         private readonly IUserNotificationService _userNotificationService;
         private readonly UploadLocation _uploadLocation;
+        private readonly LoggerUtils _logger;
         private IMapper _mapper;
 
         public ItemClaimService(
@@ -30,7 +31,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             IMailerService mailerService,
             IAdminNotificationService adminNotificationService,
             IUserNotificationService userNotificationService,
-            UploadLocation uploadLocation)
+            UploadLocation uploadLocation,
+            LoggerUtils logger)
         {
             _unitOfWork = unitOfWork;
             _itemFoundService = itemFoundService;
@@ -38,6 +40,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             _mailerService = mailerService;
             _adminNotificationService = adminNotificationService;
             _userNotificationService = userNotificationService;
+            _logger = logger;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemClaim, ItemClaimResponseDTO>()
@@ -55,7 +58,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).First().ClaimDate.Value.ToString("yyyy-MM-dd")
                         ))
                 .ForMember(t => t.ImageClosing, t => t.MapFrom(d => 
-                        String.IsNullOrWhiteSpace(d.ItemFound.ClosingImage)?null:_uploadLocation.Url(d.ItemFound.ClosingImage)))
+                        String.IsNullOrWhiteSpace(d.ClosingDocumentation==null?null:_uploadLocation.Url(d.ClosingDocumentation.TakingItemImage))))
                 .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
                 .ForMember(t => t.RejectReason, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason))
                 .ForMember(t => t.ApprovalBy, t => t.MapFrom(d => d.ItemClaimApproval.LastOrDefault().Admin.Name));
@@ -70,6 +73,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             var transaction = await _unitOfWork.CreateSavepoint(userId);
             try
             {
+                _logger.LogInfo($"start claiming process userId: {userId} itemFoundId: {request.ItemFoundId}");
                 var itemClaim = new DAL.Model.ItemClaim()
                 {
                     ActiveFlag = true,
@@ -105,9 +109,13 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 await _adminNotificationService.NewClaim(itemFound.AdminId, result.Id, itemFound.Name);
                 await _mailerService.CreateClaim(itemFound.Admin.Email, result.Id);
                 transaction.Commit();
+
+                _logger.LogInfo($"success claiming process with itemClaimId: {itemClaim.Id}");
+        
                 return result;
             } catch (Exception e)
             {
+                _logger.LogWarning($"claiming proccess failed with message {e.Message}");
                 transaction.RollbackToSavepoint(userId);
                 throw e;
             }
@@ -118,9 +126,15 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         {
             if (itemClaim == null) throw new NotFoundError();
             if (!itemClaim.Status.ToLower().Equals(ItemFoundStatus.Confirmation.ToLower()))
+            {
+                _logger.LogError($"Trying to approve/reject itemClaimId: {itemClaim.Id} itemClaimStatus:{itemClaim.Status}");
                 throw new DataMessageError(ErrorMessageConstant.ClaimApprovedRejectOnlyConfirmation);
+            }
             if (!itemFound.Status.ToLower().Equals(ItemFoundStatus.Confirmation.ToLower()))
+            {
+                _logger.LogError($"Trying to approve/reject itemClaimId: {itemClaim.Id} itemFoundStatus:{itemFound.Status}");
                 throw new DataMessageError(ErrorMessageConstant.ItemApprovedRejectOnlyConfirmation);
+            }
         }
 
         public async Task<ItemClaimResponseDTO> ApproveClaim(ItemClaimApproveRequestDTO request, string itemClaimId, string userId)
@@ -240,10 +254,11 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         public async Task<ItemClaimResponseDTO> GetItemClaimDetail(string itemClaimId)
         {
             var result = await _unitOfWork.ItemClaimRepository
-                                     .Include(t=>t.User)
-                                     .Include(t=>t.ItemFound)
-                                     .Include(t=>t.ItemClaimApproval)
-                                     .ThenInclude(t=>t.Admin)
+                                     .Include(t => t.User)
+                                     .Include(t => t.ItemFound)
+                                     .Include(t => t.ClosingDocumentation)
+                                     .Include(t => t.ItemClaimApproval)
+                                     .ThenInclude(t => t.Admin)
                                     .Where(t=>t.Id.Equals(itemClaimId) && t.ActiveFlag)
                                     .Select(t => _mapper.Map<ItemClaimResponseDTO>(t)).FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();
@@ -267,6 +282,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             itemClaim.LastUpdatedDate = DateTime.Now;
             _unitOfWork.ItemClaimRepository.Update(itemClaim);
             await _unitOfWork.SaveAsync();
+            _logger.LogInfo($"Success create rating for itemClaimId: {itemClaimId}");
             return _mapper.Map<ItemClaimResponseDTO>(itemClaim);
         }
     }

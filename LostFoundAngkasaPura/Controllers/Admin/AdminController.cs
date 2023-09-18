@@ -155,5 +155,12 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             var result = await _adminService.ResetPassword(adminId, userId);
             return new OkObjectResult(new DefaultResponse<string>(result));
         }
+
+        [HttpPost("logger")]
+        public async Task<IActionResult> TestLogger()
+        {
+            _adminService.testLogger();
+            return Ok();
+        }
     }
 }

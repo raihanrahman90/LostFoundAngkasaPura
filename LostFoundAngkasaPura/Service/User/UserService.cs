@@ -2,6 +2,7 @@
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Customer;
+using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace LostFoundAngkasaPura.Service.User
@@ -10,6 +11,7 @@ namespace LostFoundAngkasaPura.Service.User
     {
         private readonly IUnitOfWork _unitOfWork;
         private IMapper _mapper;
+        private readonly LoggerUtils _logger;
 
         public UserService(IUnitOfWork unitOfWork)
         {
@@ -40,6 +42,12 @@ namespace LostFoundAngkasaPura.Service.User
                 .Take(size)
                 .Select(t => _mapper.Map<CustomerResponseDTO>(t)).ToListAsync();
             return new Pagination<CustomerResponseDTO>(data, count, size, page);
+        }
+
+        public async Task<DAL.Model.User> GetUserById(string userId)
+        {
+            var user = await _unitOfWork.UserRepository.Where(t => t.Id.Equals(userId)).FirstOrDefaultAsync();
+            return user;
         }
     }
 }

@@ -10,6 +10,8 @@
 
         public static List<string> ValidImageExtension = new List<string>() {"jpg","jpeg","png" };
 
+        public static List<string> ValidDocumentExtension = new List<string>() { "pdf", "doc", "docx" };
+
         public class ItemFoundStatus
         {
             public readonly static string Found = "Found";

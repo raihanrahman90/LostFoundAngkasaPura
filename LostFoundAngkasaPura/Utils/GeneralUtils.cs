@@ -1,15 +1,12 @@
-﻿using LostFoundAngkasaPura.DTO.Error;
-using Org.BouncyCastle.Asn1.Ocsp;
+﻿using AutoMapper;
+using LostFoundAngkasaPura.DTO.Error;
+using LostFoundAngkasaPura.DTO.ItemFound;
 using System.Text;
 
 namespace LostFoundAngkasaPura.Utils
 {
     public class GeneralUtils
     {
-        public static void IsSameUser(string userId, string tokenUserId)
-        {
-            if (!userId.Equals(tokenUserId)) throw new NotAuthorizeError();
-        }
 
         public static string GetRandomPassword(int length)
         {
@@ -50,6 +47,21 @@ namespace LostFoundAngkasaPura.Utils
             }
         }
 
+        public static (string, string) GetDetailDocument64(string base64)
+        {
+            try
+            {
+                var extension = base64.Split(';')[0].Split('/')[1];
+                var image = base64.Split(',')[1];
+                if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
+                    throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+                return (extension, image);
+            }
+            catch (Exception e)
+            {
+                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+            }
+        }
 
     }
 }

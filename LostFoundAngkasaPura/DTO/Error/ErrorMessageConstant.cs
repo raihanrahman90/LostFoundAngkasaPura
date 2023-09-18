@@ -17,7 +17,8 @@
 
         public static string UserNotFound = "User tidak ditemukan";
 
-        public static string ImageNotValid = "File yang Anda upload tidak valid";
+        public static string ImageNotValid = "Gambar yang Anda upload tidak valid";
+        public static string DocumentNotValid = "Dokumen yang Anda upload tidak valid";
 
         public static string ImageEmpty = "Mohon upload gambar";
 
@@ -28,5 +29,7 @@
         public static string ItemInClaimProgress = "Item tersebut sudah dalam proses claim";
         public static string PleaseFillBothDate = "Mohon isi startDate dan endDate";
         public static string ForgotPasswordWrongCode = "Code yang Anda masukkan salah";
+
+        public static string Unexpected = "Maaf, telah terjadi kesalahan pada sistem kami";
     }
 }

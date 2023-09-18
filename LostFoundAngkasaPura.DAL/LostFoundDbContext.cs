@@ -8,6 +8,7 @@ namespace LostFoundAngkasaPura.DAL
     {
         public DbSet<Admin> admin { get; set; }
         public DbSet<AdminNotification> admin_notification { get; set; }
+        public DbSet<ClosingDocumentation> closing_documentation { get; set; }
         public DbSet<ItemCategory> item_category { get; set; }
         public DbSet<ItemClaim> item_claim { get; set; }
         public DbSet<ItemClaimApproval> item_claim_approval { get; set; }
@@ -24,6 +25,7 @@ namespace LostFoundAngkasaPura.DAL
         {
             builder.Entity<Admin>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<AdminNotification>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
+            builder.Entity<ClosingDocumentation>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<ItemCategory>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<ItemClaim>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());
             builder.Entity<ItemClaimApproval>(e => e.Property(e => e.Id).ValueGeneratedOnAdd());

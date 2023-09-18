@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Office2016.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Error;
@@ -8,6 +11,8 @@ using LostFoundAngkasaPura.Service.Mailer;
 using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Text.Json;
 using static LostFoundAngkasaPura.Constant.Constant;
 
 namespace LostFoundAngkasaPura.Service.ItemFound
@@ -19,64 +24,121 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         private readonly IItemCategoryService _itemCategoryService;
         private readonly UploadLocation _uploadLocation;
         private readonly IUserNotificationService _userNotificationService;
+        private readonly LoggerUtils _logger;
         private IMapper _mapper;
 
-        public ItemFoundService(IUnitOfWork unitOfWork, IMailerService mailerService, UploadLocation uploadLocation, IItemCategoryService itemCategoryService)
+        public ItemFoundService(IUnitOfWork unitOfWork, IMailerService mailerService, UploadLocation uploadLocation, IItemCategoryService itemCategoryService, LoggerUtils logger)
         {
             _unitOfWork = unitOfWork;
             _mailerService = mailerService;
             _itemCategoryService = itemCategoryService;
             _uploadLocation = uploadLocation;
+            _logger = logger;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemFound, ItemFoundResponseDTO>()
-                .ForMember(t=>t.Image, t=>t.MapFrom(d=>_uploadLocation.Url(d.Image)))
-                .ForMember(t=>t.FoundDate, t=>t.MapFrom(d=>d.FoundDate.ToString("yyyy-MM-dd")))
-                .ForMember(t=>t.ImageClosing, t=>t.MapFrom(d=>String.IsNullOrWhiteSpace(d.ClosingImage)?null:_uploadLocation.Url(d.ClosingImage)));
+                .ForMember(t => t.Image, t => t.MapFrom(d => _uploadLocation.Url(d.Image)))
+                .ForMember(t => t.FoundDate, t => t.MapFrom(d => d.FoundDate.ToString("yyyy-MM-dd")))
+                .ForMember(t => t.ClosingImage, t => t.MapFrom(d =>
+                        d.ClosingDocumentation == null ? null :
+                        _uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
+                .ForMember(t => t.ClosingDocumentation, t => t.MapFrom(d =>
+                        d.ClosingDocumentation == null ? null :
+                        _uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
+                .ForMember(t => t.ClosingAgent, t => t.MapFrom(d =>
+                        d.ClosingDocumentation == null ? null : d.ClosingDocumentation.ClosingAgent));
             }));
         }
 
         public async Task<ItemFoundResponseDTO> ClosedItem(ItemFoundClosingRequestDTO request, string itemFoundId, string userId)
         {
-            var itemFound = await _unitOfWork.ItemFoundRepository.Where(t=>t.Id.Equals(itemFoundId)).FirstOrDefaultAsync();
-            if (itemFound == null) throw new NotFoundError();
-            
+            _logger.LogInfo($"closing start itemFoundId:{itemFoundId}");
+            var itemFound = await GetItemFoundById(itemFoundId);
+            var itemClaimApproved = await _unitOfWork.ItemClaimRepository
+                .Where(t => t.ItemFoundId.Equals(itemFoundId) && t.Status.Equals(ItemFoundStatus.Approved))
+                .FirstOrDefaultAsync();
+            ItemFoundResponseDTO response;
             //upload closing image
-            var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.Image);
-            if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
-                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
-            var pathImageClosing = _uploadLocation.ClosingLocation($"{itemFoundId}.{extension}");
-            var response = await UpdateStatusAndClosingImage(ItemFoundStatus.Closed, pathImageClosing, userId, itemFound);
-            var listItemClaim = await _unitOfWork.ItemClaimRepository.Where(t => t.ItemFoundId.Equals(itemFoundId)).ToListAsync();
-            GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(pathImageClosing));
+            
+            var transaction = await _unitOfWork.CreateSavepoint($"closing:{itemFoundId}");
+            try
+            {
+                await CreateDocumentClosing(request, itemFound, itemClaimApproved, userId);
+                response = await UpdateStatus(ItemFoundStatus.Closed, userId, itemFound);
+                var listItemClaim = await _unitOfWork.ItemClaimRepository
+                    .Where(t => t.ItemFoundId.Equals(itemFoundId)).ToListAsync();
+                await RejectAllItemClaim(listItemClaim);
+                await DeleteAllNotification(listItemClaim);
+                transaction.Commit();
+            } catch (Exception e)
+            {
+                transaction.RollbackToSavepoint($"closing:{itemFoundId}");
+                throw new DataMessageError(ErrorMessageConstant.Unexpected);
+            }
 
-            //update not approved status
-            var updateStatus = listItemClaim.Where(t=>!t.Status.Equals(ItemFoundStatus.Approved)).ToList();
-            foreach(var update in updateStatus)
+            //send notification
+            if (itemClaimApproved != null)
+            {
+                await _userNotificationService.Closing(itemClaimApproved.UserId, itemClaimApproved.Id, itemFound.Name);
+                _logger.LogInfo($"send notification rating for claim {itemClaimApproved.Id}");
+            }
+
+            return response;
+        }
+
+        private async Task<string> UploadImageClosing(string image64, string itemFoundId)
+        {
+            var (extension, image) = GeneralUtils.GetDetailImageBase64(image64);
+            if (!ValidImageExtension.Contains(extension.ToLower()))
+            {
+                _logger.LogError($"image extension not valid {extension}");
+                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+            }
+            var pathImageClosing = _uploadLocation.ClosingLocation($"{itemFoundId}.{extension}"); 
+            GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(pathImageClosing));
+            return pathImageClosing;
+        }
+
+        private async Task<string> UploadDocumentClosing(string file64, string itemFoundId)
+        {
+            var (extension, file) = GeneralUtils.GetDetailDocument64(file64);
+            if (!ValidDocumentExtension.Contains(extension.ToLower()))
+            {
+                _logger.LogError($"document extension not valid {extension}");
+                throw new DataMessageError(ErrorMessageConstant.DocumentNotValid);
+            }
+            var pathDocumentClosing = _uploadLocation.ClosingLocation($"{itemFoundId}.{extension}");
+            GeneralUtils.UploadFile(file, _uploadLocation.FolderLocation(pathDocumentClosing));
+            return pathDocumentClosing;
+        }
+
+        private async Task RejectAllItemClaim(List<DAL.Model.ItemClaim> listItemClaim)
+        {
+            var updateStatus = listItemClaim.Where(t => !t.Status.Equals(ItemFoundStatus.Approved)).ToList();
+            foreach (var update in updateStatus)
             {
                 update.Status = ItemFoundStatus.Rejected;
             }
             _unitOfWork.ItemClaimRepository.UpdateRange(updateStatus);
+            _logger.LogInfo($"reject claim id in {updateStatus.Select(t => t.Id).ToList()}");
+        }
 
-            //delete notification
+        private async Task DeleteAllNotification(List<DAL.Model.ItemClaim> listItemClaim)
+        {
             var idDeleteNotif = listItemClaim.Select(t => t.Id).ToList();
             var deleteAdminNotif = await _unitOfWork.AdminNotificationRepository.Where(t => idDeleteNotif.Contains(t.ItemClaimId)).ToListAsync();
             var deleteUserNotif = await _unitOfWork.UserNotificationRepository.Where(t => idDeleteNotif.Contains(t.ItemClaimId)).ToListAsync();
             _unitOfWork.AdminNotificationRepository.RemoveRange(deleteAdminNotif);
             _unitOfWork.UserNotificationRepository.RemoveRange(deleteUserNotif);
             await _unitOfWork.SaveAsync();
+            _logger.LogInfo($"delete all admin notification with id {idDeleteNotif}");
+            _logger.LogInfo($"delete all user notification with id {idDeleteNotif}");
 
-            //send notification
-            var approvedClaim = await _unitOfWork.ItemClaimRepository
-                .Where(t => t.ItemFoundId.Equals(itemFoundId) && t.Status.Equals(ItemFoundStatus.Approved))
-                .FirstOrDefaultAsync();
-            if (approvedClaim != null) await _userNotificationService.Closing(approvedClaim.UserId, approvedClaim.Id, itemFound.Name);
-
-            return response;
         }
 
         public async Task<ItemFoundResponseDTO> CreateItemFound(ItemFoundCreateRequestDTO request, string adminId)
         {
+            _logger.LogInfo($"create item found: {request.Name}");
             var isUploadImage = String.IsNullOrWhiteSpace(request.ImageBase64);
             var category = await _itemCategoryService.CreateCategory(request.Category);
             DAL.Model.ItemFound itemFound = new DAL.Model.ItemFound(){
@@ -90,9 +152,13 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             };
             if (!isUploadImage)
             {
-                var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ImageBase64);
-                if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
+                _logger.LogInfo("upload image");
+                var (extension, image) = GeneralUtils.GetDetailImageBase64(request.ImageBase64);
+                if (!ValidImageExtension.Contains(extension.ToLower()))
+                {
+                    _logger.LogError("image not valid");
                     throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+                }
 
                 var fileName = $"{request.Name}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension.ToLower()}";
                 var fileLocation = _uploadLocation.ItemFoundLocation(fileName);
@@ -101,6 +167,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             }
             else
             {
+                _logger.LogError("image is empty");
                 throw new DataMessageError(ErrorMessageConstant.ImageEmpty);
             }
             await _unitOfWork.ItemFoundRepository.AddAsync(itemFound);
@@ -110,7 +177,11 @@ namespace LostFoundAngkasaPura.Service.ItemFound
 
         public async Task<ItemFoundResponseDTO> GetDetailItemFound(string itemFoundId)
         {
-            var result = await _unitOfWork.ItemFoundRepository.Where(t => t.Id.Equals(itemFoundId)).Select(t => _mapper.Map<ItemFoundResponseDTO>(t)).FirstOrDefaultAsync();
+            var result = await _unitOfWork.ItemFoundRepository
+                .Where(t => t.Id.Equals(itemFoundId))
+                .Include(t => t.ClosingDocumentation)
+                .Select(t => _mapper.Map<ItemFoundResponseDTO>(t))
+                .FirstOrDefaultAsync();
             if (result == null) throw new NotFoundError();
             return result;
         }
@@ -141,25 +212,58 @@ namespace LostFoundAngkasaPura.Service.ItemFound
             throw new NotImplementedException();
         }
 
-        public async Task<ItemFoundResponseDTO> UpdateStatus(string status, string userId, DAL.Model.ItemFound itemFound)
+        public async Task<ItemFoundResponseDTO> UpdateStatus(
+            string status,string userId, 
+            DAL.Model.ItemFound itemFound)
         {
             itemFound.Status = status;
+            return await UpdateItemFound(itemFound, userId);
+        }
+
+        public async Task<ItemFoundResponseDTO> UpdateItemFound(DAL.Model.ItemFound itemFound, string userId)
+        {
             itemFound.LastUpdatedDate = DateTime.Now;
             itemFound.LastUpdatedBy = userId;
             _unitOfWork.ItemFoundRepository.Update(itemFound);
             await _unitOfWork.SaveAsync();
             return _mapper.Map<ItemFoundResponseDTO>(itemFound);
         }
-
-        private async Task<ItemFoundResponseDTO> UpdateStatusAndClosingImage(string status, string pathImage, string userId, DAL.Model.ItemFound itemFound)
+        private async Task CreateDocumentClosing(
+            ItemFoundClosingRequestDTO request, 
+            DAL.Model.ItemFound itemFound, 
+            DAL.Model.ItemClaim itemClaimApproved,
+            string userId)
         {
-            itemFound.ClosingImage = pathImage;
-            itemFound.Status = status;
-            itemFound.LastUpdatedDate = DateTime.Now;
-            itemFound.LastUpdatedBy = userId;
-            _unitOfWork.ItemFoundRepository.Update(itemFound);
+            var pathImage = await UploadImageClosing(request.Image, itemFound.Id);
+            var pathDocument = await UploadDocumentClosing(request.News, itemFound.Id);
+            ClosingDocumentation closingDocument = new ClosingDocumentation()
+            {
+                ActiveFlag = true,
+                CreatedBy = userId,
+                CreatedDate = DateTime.Now,
+                TakingItemImage = pathImage,
+                NewsDocumentation = pathDocument,
+                ClosingAgent = request.Agent,
+                ItemFound = itemFound,
+                ItemClaim = itemClaimApproved
+            };
+            await _unitOfWork.ClosingDocumentationRepository.AddAsync(closingDocument);
             await _unitOfWork.SaveAsync();
-            return _mapper.Map<ItemFoundResponseDTO>(itemFound);
+
+        }
+
+        private async Task<DAL.Model.ItemFound> GetItemFoundById(string itemFoundId)
+        {
+            var itemFound = await _unitOfWork.ItemFoundRepository
+            .Where(t => t.Id.Equals(itemFoundId))
+            .FirstOrDefaultAsync();
+            if (itemFound == null)
+            {
+                _logger.LogError($"data not found itemFoundId:{itemFoundId}");
+                throw new NotFoundError();
+            }
+            return itemFound;
+
         }
     }
 }

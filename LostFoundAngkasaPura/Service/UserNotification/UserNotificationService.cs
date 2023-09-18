@@ -1,5 +1,6 @@
 ﻿using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO.Notification;
+using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace LostFoundAngkasaPura.Service.UserNotification
@@ -7,14 +8,17 @@ namespace LostFoundAngkasaPura.Service.UserNotification
     public class UserNotificationService : IUserNotificationService
     {
         private IUnitOfWork _unitOfWork;
+        private LoggerUtils _logger;
 
-        public UserNotificationService(IUnitOfWork uow)
+        public UserNotificationService(IUnitOfWork uow, LoggerUtils logger)
         {
             _unitOfWork = uow;
+            _logger = logger;
         }
 
         public async Task DeleteNotification(string userId, string itemClaimId)
         {
+            _logger.LogInfo($"delete notiication of user:{userId} itemClaim:{itemClaimId}");
             var deleteNotification = await _unitOfWork.UserNotificationRepository.Where(t => t.UserId.Equals(userId) && t.ItemClaimId.Equals(itemClaimId)).ToListAsync();
             _unitOfWork.UserNotificationRepository.RemoveRange(deleteNotification);
             await _unitOfWork.SaveAsync();
@@ -72,6 +76,7 @@ namespace LostFoundAngkasaPura.Service.UserNotification
 
         private async Task addNotification(string itemClaimId,string userId, string title, string subtitle)
         {
+            _logger.LogInfo($"add notification for user {userId} with itemClaimId {itemClaimId}");
             var notification = new DAL.Model.UserNotification()
             {
                 CreatedBy = "System",

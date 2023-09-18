@@ -4,12 +4,15 @@ using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.Admin;
 using LostFoundAngkasaPura.DTO.Error;
 using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using static LostFoundAngkasaPura.Constant.Constant;
 
 namespace LostFoundAngkasaPura.Service.Admin
@@ -23,12 +26,14 @@ namespace LostFoundAngkasaPura.Service.Admin
         private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler;
         private readonly IMapper _mapper;
         private readonly IMailerService _mailserService;
+        private readonly LoggerUtils _logger;
 
         public AdminService(
             IUnitOfWork uow, 
             JwtSecurityTokenHandler jwtSecurityTokenHandler, 
             IConfiguration configuration,
-            IMailerService mailerService)
+            IMailerService mailerService,
+            LoggerUtils logger)
         {
             ValidIssuer = configuration.GetValue<string>("JWT:ValidIssuer");
             ValidAudience = configuration.GetValue<string>("JWT:ValidAudience");
@@ -40,14 +45,20 @@ namespace LostFoundAngkasaPura.Service.Admin
             {
                 t.CreateMap<DAL.Model.Admin, AdminResponseDTO>();
             }));
+            _logger = logger;
         }
 
         public async Task<AdminAccessResponseDTO> GetAccessToken(string refreshToken)
         {
+            _logger.LogInfo($"user with refreshToken {refreshToken} getting new accessToken");
             var admin = await _unitOfWork.AdminRepository.Where(t => t.RefreshToken.Equals(refreshToken) && t.ActiveFlag).FirstOrDefaultAsync();
-            if (admin == null) throw new DataMessageError(ErrorMessageConstant.RefreshTokenNotFound);
-
+            if (admin == null)
+            {
+                throw new DataMessageError(ErrorMessageConstant.RefreshTokenNotFound);
+                _logger.LogInfo($"refreshToken not found");
+            }
             var accessToken = GenerateAccessToken(admin.Email, admin.Id, admin.Access);
+            _logger.LogInfo($"Getting new access token success");
             return new AdminAccessResponseDTO()
             {
                 AccessToken = accessToken,
@@ -82,11 +93,15 @@ namespace LostFoundAngkasaPura.Service.Admin
 
         public async Task<AdminResponseDTO> CreateAdmin(AdminCreateRequestDTO request, string adminId)
         {
+            _logger.LogInfo($"creating admin with data: {JsonSerializer.Serialize(request)}");
             bool isSuperAdmin = false;
             if (request.Access.ToLower().Equals(AdminAccess.SuperAdmin.ToLower())) isSuperAdmin = true;
             else if (request.Access.ToLower().Equals(AdminAccess.Admin.ToLower())) isSuperAdmin = false;
-            else throw new DataMessageError(ErrorMessageConstant.NotValidField("Access"));
-
+            else
+            {
+                _logger.LogError($"Not expect request data Access: {request.Access}");
+                throw new DataMessageError(ErrorMessageConstant.NotValidField("Access"));
+            }
             bool isEmailUsed = await _unitOfWork.AdminRepository.Where(t => t.ActiveFlag && t.Email.ToLower().Equals(request.Email.ToLower())).AnyAsync();
             if (isEmailUsed) throw new DataMessageError(ErrorMessageConstant.EmailAlreadyExist);
 
@@ -252,6 +267,20 @@ namespace LostFoundAngkasaPura.Service.Admin
             _unitOfWork.AdminRepository.Update(admin);
             await _unitOfWork.SaveAsync();
             return _mapper.Map<AdminResponseDTO>(admin);
+        }
+
+        public async Task<DAL.Model.Admin> GetAdminById(string adminId)
+        {
+            var admin = await _unitOfWork.AdminRepository.FirstOrDefaultAsync(t=>t.Id.Equals(adminId));
+            return admin;
+        }
+
+        public async Task testLogger()
+        {
+            _logger.LogInfo("Test info");
+            _logger.LogError("test log error");
+            _logger.LogWarning("test warning");
+            _logger.LogDebug("ini debuging");
         }
     }
 }

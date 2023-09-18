@@ -9,6 +9,8 @@
         public string Category { get; set; }
         public string Status { get; set; }
         public string FoundDate { get; set; }
-        public string? ImageClosing { get; set; }
+        public string? ClosingImage { get; set; }
+        public string? ClosingDocumentation { get; set; }
+        public string? ClosingAgent { get; set; }
     }
 }

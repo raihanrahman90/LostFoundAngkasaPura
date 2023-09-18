@@ -11,6 +11,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
 
         public DbSet<Admin> AdminRepository { get; set; }
         public DbSet<AdminNotification> AdminNotificationRepository { get; set; }
+        public DbSet<ClosingDocumentation> ClosingDocumentationRepository { get; set; }
         public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
         public DbSet<ItemClaim> ItemClaimRepository { get; set; }
         public DbSet<ItemClaimApproval> ItemClaimApprovalRepository { get; set; }
@@ -24,6 +25,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
         {
             this.AdminRepository = dbContext.admin;
             this.AdminNotificationRepository = dbContext.admin_notification;
+            this.ClosingDocumentationRepository = dbContext.closing_documentation;
             this.ItemCategoryRepository = dbContext.item_category;
             this.ItemClaimRepository = dbContext.item_claim;
             this.ItemClaimApprovalRepository = dbContext.item_claim_approval;

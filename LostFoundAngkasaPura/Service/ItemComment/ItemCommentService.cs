@@ -2,7 +2,10 @@
 using LostFoundAngkasaPura.DAL.Model;
 using LostFoundAngkasaPura.DAL.Repositories;
 using LostFoundAngkasaPura.DTO.ItemComment;
+using LostFoundAngkasaPura.Service.Admin;
 using LostFoundAngkasaPura.Service.AdminNotification;
+using LostFoundAngkasaPura.Service.Mailer;
+using LostFoundAngkasaPura.Service.User;
 using LostFoundAngkasaPura.Service.UserNotification;
 using LostFoundAngkasaPura.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -15,18 +18,27 @@ namespace LostFoundAngkasaPura.Service.ItemComment
         private readonly UploadLocation _uploadLocation;
         private readonly IUserNotificationService _userNotificationService;
         private readonly IAdminNotificationService _adminNotificationService;
+        private readonly IMailerService _mailerService;
+        private readonly IAdminService _adminService;
+        private readonly IUserService _userService;
         private IMapper _mapper;
 
         public ItemCommentService(
             IUnitOfWork uow, 
             UploadLocation uploadLocation,
             IUserNotificationService userNotificationService,
-            IAdminNotificationService adminNotificationService)
+            IAdminNotificationService adminNotificationService,
+            IMailerService mailerService,
+            IAdminService adminService,
+            IUserService userService)
         {
             _unitOfWork = uow;    
             _uploadLocation = uploadLocation;
             _userNotificationService = userNotificationService;
             _adminNotificationService = adminNotificationService;
+            _mailerService = mailerService;
+            _adminService = adminService;
+            _userService = userService;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemComment, ItemCommentResponseDTO>()
@@ -49,10 +61,10 @@ namespace LostFoundAngkasaPura.Service.ItemComment
             };
             if (!String.IsNullOrWhiteSpace(request.ImageBase64))
             {
-                var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ImageBase64);
+                var (extension, image) = GeneralUtils.GetDetailImageBase64(request.ImageBase64);
                 var fileName = $"{request.ItemClaimId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
                 var fileLocation = _uploadLocation.ComentarLocation(fileName);
-                Utils.GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
+                GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
                comment.ImageLocation = fileLocation;
             }
             await _unitOfWork.ItemCommentRepository.AddAsync(comment);
@@ -70,6 +82,8 @@ namespace LostFoundAngkasaPura.Service.ItemComment
                     .FirstOrDefaultAsync();
                 if (lastComment == null) adminCommentId = itemFound.AdminId;
                 else  adminCommentId = lastComment.AdminId;
+                var admin = await _adminService.GetAdminById(adminCommentId);
+                await _mailerService.SendCommentToAdmin(admin.Email, request.ItemClaimId);
                 await _userNotificationService.DeleteNotification(userId, request.ItemClaimId);
                 await _adminNotificationService.NewComment(adminCommentId, request.ItemClaimId, itemFound.Name);
             }
@@ -80,6 +94,8 @@ namespace LostFoundAngkasaPura.Service.ItemComment
                     .Include(t => t.ItemFound)
                     .Where(t => t.Id.Equals(request.ItemClaimId))
                     .FirstOrDefaultAsync();
+                var user = await _userService.GetUserById(itemClaim.UserId);
+                await _mailerService.SendCommentToUser(user.Email, request.ItemClaimId);
                 await _adminNotificationService.DeleteNotification(adminId, request.ItemClaimId);
                 await _userNotificationService.NewComment(itemClaim.UserId, request.ItemClaimId, itemClaim.ItemFound.Name);
             }

@@ -8,6 +8,7 @@ namespace LostFoundAngkasaPura.DAL.Repositories
     {
         public DbSet<Admin> AdminRepository { get; set; }
         public DbSet<AdminNotification> AdminNotificationRepository { get; set; }
+        public DbSet<ClosingDocumentation> ClosingDocumentationRepository { get; set; }
         public DbSet<ItemCategory> ItemCategoryRepository { get; set; }
         public DbSet<ItemClaim> ItemClaimRepository { get; set; }
         public DbSet<ItemClaimApproval> ItemClaimApprovalRepository { get; set; }

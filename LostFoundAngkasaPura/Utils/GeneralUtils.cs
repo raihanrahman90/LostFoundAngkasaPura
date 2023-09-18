@@ -53,13 +53,13 @@ namespace LostFoundAngkasaPura.Utils
             {
                 var extension = base64.Split(';')[0].Split('/')[1];
                 var image = base64.Split(',')[1];
-                if (!Constant.Constant.ValidImageExtension.Contains(extension.ToLower()))
-                    throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+                if (!Constant.Constant.ValidDocumentExtension.Contains(extension.ToLower()))
+                    throw new DataMessageError(ErrorMessageConstant.DocumentNotValid);
                 return (extension, image);
             }
             catch (Exception e)
             {
-                throw new DataMessageError(ErrorMessageConstant.ImageNotValid);
+                throw new DataMessageError(ErrorMessageConstant.DocumentNotValid);
             }
         }
 

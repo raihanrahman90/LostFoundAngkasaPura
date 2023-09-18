@@ -27,13 +27,14 @@ namespace LostFoundAngkasaPura.Service.ItemFound
         private readonly LoggerUtils _logger;
         private IMapper _mapper;
 
-        public ItemFoundService(IUnitOfWork unitOfWork, IMailerService mailerService, UploadLocation uploadLocation, IItemCategoryService itemCategoryService, LoggerUtils logger)
+        public ItemFoundService(IUnitOfWork unitOfWork, IMailerService mailerService, UploadLocation uploadLocation, IItemCategoryService itemCategoryService, LoggerUtils logger, IUserNotificationService userNotificationService)
         {
             _unitOfWork = unitOfWork;
             _mailerService = mailerService;
             _itemCategoryService = itemCategoryService;
             _uploadLocation = uploadLocation;
             _logger = logger;
+            _userNotificationService = userNotificationService;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemFound, ItemFoundResponseDTO>()
@@ -44,7 +45,7 @@ namespace LostFoundAngkasaPura.Service.ItemFound
                         _uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
                 .ForMember(t => t.ClosingDocumentation, t => t.MapFrom(d =>
                         d.ClosingDocumentation == null ? null :
-                        _uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
+                        _uploadLocation.Url(d.ClosingDocumentation.NewsDocumentation)))
                 .ForMember(t => t.ClosingAgent, t => t.MapFrom(d =>
                         d.ClosingDocumentation == null ? null : d.ClosingDocumentation.ClosingAgent));
             }));
@@ -69,10 +70,17 @@ namespace LostFoundAngkasaPura.Service.ItemFound
                     .Where(t => t.ItemFoundId.Equals(itemFoundId)).ToListAsync();
                 await RejectAllItemClaim(listItemClaim);
                 await DeleteAllNotification(listItemClaim);
-                transaction.Commit();
-            } catch (Exception e)
+                await transaction.CommitAsync();
+            } 
+            catch (DataMessageError e)
             {
-                transaction.RollbackToSavepoint($"closing:{itemFoundId}");
+                transaction.RollbackToSavepointAsync($"closing:{itemFoundId}");
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e.Message);
+                transaction.RollbackToSavepointAsync($"closing:{itemFoundId}");
                 throw new DataMessageError(ErrorMessageConstant.Unexpected);
             }
 
@@ -107,6 +115,8 @@ namespace LostFoundAngkasaPura.Service.ItemFound
                 _logger.LogError($"document extension not valid {extension}");
                 throw new DataMessageError(ErrorMessageConstant.DocumentNotValid);
             }
+            //extension perlu diformat ulang karena extension base64 dari docx adalah document bla bla bla
+            extension = extension == "pdf" ? "pdf" : "docx";
             var pathDocumentClosing = _uploadLocation.ClosingLocation($"{itemFoundId}.{extension}");
             GeneralUtils.UploadFile(file, _uploadLocation.FolderLocation(pathDocumentClosing));
             return pathDocumentClosing;

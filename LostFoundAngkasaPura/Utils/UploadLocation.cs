@@ -45,7 +45,17 @@
 
         public string WebsiteUrl(string path)
         {
-            return $"{_urlWebsite}/{path}";
+            return $"{_urlWebsite}{path}";
+        }
+
+        public string UserClaimPath(string itemClaimId)
+        {
+            return WebsiteUrl($"Claim/{itemClaimId}");
+        }
+
+        public string AdminClaimPath(string itemClaimId)
+        {
+            return WebsiteUrl($"Admin/ItemClaim/{itemClaimId}");
         }
     }
 }

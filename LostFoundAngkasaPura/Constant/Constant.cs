@@ -10,7 +10,7 @@
 
         public static List<string> ValidImageExtension = new List<string>() {"jpg","jpeg","png" };
 
-        public static List<string> ValidDocumentExtension = new List<string>() { "pdf", "doc", "docx" };
+        public static List<string> ValidDocumentExtension = new List<string>() { "pdf", "doc", "docx", "vnd.openxmlformats-officedocument.wordprocessingml.document" };
 
         public class ItemFoundStatus
         {

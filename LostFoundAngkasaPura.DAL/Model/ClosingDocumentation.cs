@@ -9,7 +9,7 @@ namespace LostFoundAngkasaPura.DAL.Model
         public ItemFound ItemFound { get; set; }
         public string? ItemClaimId { get; set; }
         [ForeignKey("ItemClaimId")]
-        public ItemClaim ItemClaim { get; set; }
+        public ItemClaim? ItemClaim { get; set; }
         public string TakingItemImage { get; set; }
         public string NewsDocumentation { get; set; }
         public string ClosingAgent { get; set; }

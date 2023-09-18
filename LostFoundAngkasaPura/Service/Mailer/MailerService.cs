@@ -5,6 +5,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using System;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using LostFoundAngkasaPura.Utils;
 
 namespace LostFoundAngkasaPura.Service.Mailer
 {
@@ -15,18 +16,21 @@ namespace LostFoundAngkasaPura.Service.Mailer
         private string Username;
         private string Password;
         private string UrlWebsite;
-        public MailerService(IConfiguration configuration)
+        private UploadLocation _uploadLocation;
+
+        public MailerService(IConfiguration configuration, UploadLocation uploadLocation)
         {
             Host = configuration.GetValue<string>("SMTP:Host");
             Port = configuration.GetValue<int>("SMTP:Port");
             Username = configuration.GetValue<string>("SMTP:Username");
             Password = configuration.GetValue<string>("SMTP:Password");
             UrlWebsite = configuration.GetValue<string>("Base:Website");
+            _uploadLocation = uploadLocation;
         }
 
-        public async Task ApproveClaim(string email, string location, DateTime date, string url)
+        public async Task ApproveClaim(string email, string location, DateTime date, string itemClaimId)
         {
-            var subject = "Lost & Found SAMS Sepinggan Login Credential";
+            var subject = "Klaim Barang";
             var body = "" +
                 "<p>" +
                 "Proses klaim barang Anda telah di-approve oleh Admin Lost & Found Bandara SAMS Sepinggan Balikpapan, " +
@@ -34,7 +38,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
                 "</p>" +
                 $"<p>Lokasi : {location}</p>" +
                 $"<p>Tanggal: {date.ToString("yyyy-MM-dd")}</p>" +
-                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a>";
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{_uploadLocation.UserClaimPath(itemClaimId)}'>link</a>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
@@ -55,12 +59,12 @@ namespace LostFoundAngkasaPura.Service.Mailer
 
         public async Task CreateClaim(string email, string id)
         {
-            var subject = "Lost & Found SAMS Sepinggan User Claim Item";
+            var subject = "Klaim Barang";
             var body = "" +
                 "<p>" +
                 "User melakukan claim terhadap item yang Anda upload, lihat detail claim pada lin berikut" +
                 "</p>" +
-                $"<p><a href='{UrlWebsite}/admin/ItemClaim/{id}'>link</a></p>";
+                $"<p><a href='{_uploadLocation.AdminClaimPath(id)}'>link</a></p>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
@@ -77,23 +81,23 @@ namespace LostFoundAngkasaPura.Service.Mailer
             await Send(email, subject, html);
         }
 
-        public async Task RejectClaim(string email, string reason, string url)
+        public async Task RejectClaim(string email, string reason, string itemClaimId)
         {
-            var subject = "Claim barang";
+            var subject = "Klaim barang";
             var body = "" +
                 "<p>" +
                 "Proses klaim barang Anda telah ditolak oleh Admin Lost & Found Bandara SAMS Sepinggan Balikpapan " +
                 "dengan alasan sebagai berikut" +
                 "</p>" +
                 $"<p>Alasan : {reason}</p>" +
-                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{url}'>link</a></p>";
+                $"<p>Untuk melihat detail pengambilan, silahkan masuk ke <a href='{_uploadLocation.UserClaimPath(itemClaimId)}'>link</a></p>";
             var html = TemplateEmail(body);
             await Send(email, subject, html);
         }
 
         public async Task SendCommentToAdmin(string email, string itemClaimId)
         {
-            var subject = "Claim barang";
+            var subject = "Klaim barang";
             var body = "" +
                 "<p>" +
                 "User telah memberikan keterangan tambahan pada claimnya, lihat pada link berikut" +
@@ -105,7 +109,7 @@ namespace LostFoundAngkasaPura.Service.Mailer
 
         public async Task SendCommentToUser(string email, string itemClaimId)
         {
-            var subject = "Claim barang";
+            var subject = "Klaim barang";
             var body = "" +
                 "<p>" +
                 "Admin telah memberikan keterangan tambahan pada claimnya, lihat pada link berikut" +

@@ -59,8 +59,12 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                             null :
                             d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).First().ClaimDate.Value.ToString("yyyy-MM-dd")
                         ))
-                .ForMember(t => t.ImageClosing, t => t.MapFrom(d => 
-                        d.ClosingDocumentation==null?null:_uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
+                .ForMember(t => t.ClosingImage, t => t.MapFrom(d =>
+                        d.ClosingDocumentation == null ? null : _uploadLocation.Url(d.ClosingDocumentation.TakingItemImage)))
+                .ForMember(t => t.ClosingDocumentation, t => t.MapFrom(d =>
+                        d.ClosingDocumentation == null ? null : _uploadLocation.Url(d.ClosingDocumentation.NewsDocumentation)))
+                .ForMember(t => t.ClosingAgent, t => t.MapFrom(d => 
+                        d.ClosingDocumentation == null ? null : _uploadLocation.Url(d.ClosingDocumentation.ClosingAgent)))
                 .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
                 .ForMember(t => t.RejectReason, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason))
                 .ForMember(t => t.ApprovalBy, t => t.MapFrom(d => d.ItemClaimApproval.LastOrDefault().Admin.Name));

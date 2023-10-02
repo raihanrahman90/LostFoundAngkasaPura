@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LostFoundAngkasaPura", "LostFoundAngkasaPura\LostFoundAngkasaPura.csproj", "{7A1E3E2A-EEDA-4839-9A6E-A3F20DA00097}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LostFoundAngkasaPura.DAL", "LostFoundAngkasaPura.DAL\LostFoundAngkasaPura.DAL.csproj", "{B26BE641-5BE8-4DED-8350-D44E2FC670F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LostFoundAngkasaPura.DAL", "LostFoundAngkasaPura.DAL\LostFoundAngkasaPura.DAL.csproj", "{B26BE641-5BE8-4DED-8350-D44E2FC670F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

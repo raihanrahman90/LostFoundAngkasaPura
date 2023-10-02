@@ -118,6 +118,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<LoggerUtils>();
 builder.Services.AddSingleton<UploadLocation>();
+builder.Services.AddSingleton<HtmlUtils>();
 
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<JwtSecurityTokenHandler>();

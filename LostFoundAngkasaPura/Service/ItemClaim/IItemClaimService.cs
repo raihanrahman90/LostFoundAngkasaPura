@@ -1,6 +1,5 @@
 ﻿using LostFoundAngkasaPura.DTO;
 using LostFoundAngkasaPura.DTO.ItemClaim;
-using LostFoundAngkasaPura.DTO.ItemFound;
 
 namespace LostFoundAngkasaPura.Service.ItemClaim
 {
@@ -14,5 +13,6 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         Task<ItemClaimResponseDTO> RejectClaim(ItemClaimRejectRequestDTO request, string itemClaimId, string userId);
         Task ValidateUser(string itemClaimId, string userId);
         Task<ItemClaimResponseDTO> AddRating(RatingRequestDTO request, string itemClaimId, string userId);
+        Task<string> DownloadAsPdf(string itemClaimId);
     }
 }

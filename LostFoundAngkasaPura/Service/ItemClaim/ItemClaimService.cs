@@ -25,6 +25,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         private readonly IUserNotificationService _userNotificationService;
         private readonly UploadLocation _uploadLocation;
         private readonly LoggerUtils _logger;
+        private readonly HtmlUtils _htmlUtils;
         private IMapper _mapper;
 
         public ItemClaimService(
@@ -34,7 +35,8 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             IAdminNotificationService adminNotificationService,
             IUserNotificationService userNotificationService,
             UploadLocation uploadLocation,
-            LoggerUtils logger)
+            LoggerUtils logger,
+            HtmlUtils htmlUtils)
         {
             _unitOfWork = unitOfWork;
             _itemFoundService = itemFoundService;
@@ -43,6 +45,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             _adminNotificationService = adminNotificationService;
             _userNotificationService = userNotificationService;
             _logger = logger;
+            _htmlUtils = htmlUtils;
             _mapper = new Mapper(new MapperConfiguration(t =>
             {
                 t.CreateMap<DAL.Model.ItemClaim, ItemClaimResponseDTO>()
@@ -68,10 +71,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 .ForMember(t => t.ClaimLocation, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Approved)).FirstOrDefault().ClaimLocation))
                 .ForMember(t => t.RejectReason, t => t.MapFrom(d => d.ItemClaimApproval.Where(t => t.Status.Equals(ItemFoundStatus.Rejected)).FirstOrDefault().RejectReason))
                 .ForMember(t => t.ApprovalBy, t => t.MapFrom(d => d.ItemClaimApproval.LastOrDefault().Admin.Name));
-            })
-            {
-
-            });
+            }));
         }
 
         public async Task<ItemClaimResponseDTO> ClaimItem(ItemClaimRequestDTO request, string userId)
@@ -94,7 +94,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
                 };
                 if (!String.IsNullOrWhiteSpace(request.ProofImageBase64))
                 {
-                    var (extension, image) = Utils.GeneralUtils.GetDetailImageBase64(request.ProofImageBase64);
+                    var (extension, image) = GeneralUtils.GetDetailImageBase64(request.ProofImageBase64);
                     var fileName = $"{userId}-{DateTime.Now.ToString("yyyy-MM-dd")}.{extension}";
                     var fileLocation = _uploadLocation.ItemClaimLocation(fileName);
                     GeneralUtils.UploadFile(image, _uploadLocation.FolderLocation(fileLocation));
@@ -151,7 +151,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
 
             await _itemFoundService.UpdateStatus(ItemFoundStatus.Confirmed, userId, itemFound);
             itemClaim = await UpdateItemClaimStatus(itemClaim, ItemFoundStatus.Approved, userId);
-            var itemApproval = await CreateApproval(userId, itemClaimId, locationTaking: request.ClaimLocation, dateTaking: request.ClaimDate);
+            var itemApproval = await CreateApproval(userId, itemClaimId, ItemFoundStatus.Approved, locationTaking: request.ClaimLocation, dateTaking: request.ClaimDate);
             await _unitOfWork.SaveAsync();
 
             var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
@@ -215,7 +215,7 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
 
             await _itemFoundService.UpdateStatus(ItemFoundStatus.Found, userId, itemFound);
             itemClaim = await UpdateItemClaimStatus(itemClaim, ItemFoundStatus.Rejected, userId);
-            var itemApproval = await CreateApproval(userId, itemClaimId, rejectReason: request.RejectReason);
+            var itemApproval = await CreateApproval(userId, itemClaimId, ItemFoundStatus.Rejected, rejectReason: request.RejectReason);
             await _unitOfWork.SaveAsync();
 
             var result = _mapper.Map<ItemClaimResponseDTO>(itemClaim);
@@ -289,13 +289,13 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
         }
 
         private async Task<ItemClaimApproval> CreateApproval(
-            string userId, string itemClaimId, string? locationTaking=null, DateTime? dateTaking=null, string? rejectReason=null)
+            string userId, string itemClaimId, string status, string? locationTaking=null, DateTime? dateTaking=null, string? rejectReason=null)
         {
 
             ItemClaimApproval approval = new ItemClaimApproval()
             {
                 ActiveFlag = true,
-                Status = ItemFoundStatus.Approved,
+                Status = status,
                 ClaimDate = dateTaking,
                 ClaimLocation = locationTaking,
                 RejectReason = rejectReason,
@@ -304,6 +304,29 @@ namespace LostFoundAngkasaPura.Service.ItemClaim
             };
             _unitOfWork.ItemClaimApprovalRepository.Add(approval);
             return approval;
+        }
+
+        public async Task<string> DownloadAsPdf(string itemClaimId)
+        {
+            var itemClaim = await GetItemClaimById(itemClaimId);
+            var htmlItem = _htmlUtils.HtmlBarang(itemClaim.ItemFound);
+            var htmlClaim = _htmlUtils.HtmlClaim(itemClaim);
+            var htmlCustomer = _htmlUtils.HtmlCustomer(itemClaim.User);
+
+            var itemClosing = await _unitOfWork.ClosingDocumentationRepository.FirstOrDefaultAsync(t => t.ItemClaimId.Equals(itemClaimId));
+            var htmlClosing = itemClosing==null?"":_htmlUtils.HtmlClosing(itemClosing);
+
+            var approval = await _unitOfWork.ItemClaimApprovalRepository.FirstOrDefaultAsync(t => t.ItemClaimId.Equals(itemClaimId));
+            var htmlApproval = approval == null?"":_htmlUtils.HtmlApproval(approval);
+
+                
+            var fileName = _uploadLocation.ItemClaimLocation($"{itemClaimId}.html");
+            var filePath = _uploadLocation.FolderLocation(fileName);
+            var html = _htmlUtils.BaseReport(
+                    htmlItem + htmlClaim + htmlCustomer + htmlApproval + htmlClosing
+                );
+            File.WriteAllTextAsync(filePath, html);
+            return _uploadLocation.Url(fileName);
         }
     }
 }

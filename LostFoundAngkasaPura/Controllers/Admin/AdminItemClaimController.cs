@@ -74,5 +74,12 @@ namespace LostFoundAngkasaPura.Controllers.Admin
             return new OkObjectResult(new DefaultResponse<ItemClaimResponseDTO>(result));
         }
 
+        [HttpGet("{itemClaimId}/report")]
+        public async Task<IActionResult> GetReport(
+            [FromRoute] string itemClaimId)
+        {
+            string result = await _itemClaim.DownloadAsPdf(itemClaimId);
+            return new OkObjectResult(new DefaultResponse<string>(result));
+        }
     }
 }

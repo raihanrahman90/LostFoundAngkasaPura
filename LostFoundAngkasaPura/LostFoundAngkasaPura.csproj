@@ -27,4 +27,6 @@
     <ProjectReference Include="..\LostFoundAngkasaPura.DAL\LostFoundAngkasaPura.DAL.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
+
 </Project>

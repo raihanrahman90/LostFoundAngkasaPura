@@ -45,7 +45,7 @@
 
         public string WebsiteUrl(string path)
         {
-            return $"{_urlWebsite}{path}";
+            return $"{_urlWebsite}/{path}";
         }
 
         public string UserClaimPath(string itemClaimId)

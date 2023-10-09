@@ -10,6 +10,10 @@ namespace LostFoundAngkasaPura.Service.Dashboard
     public class DashboardService : IDashboardService
     {
         private IUnitOfWork _unitOfWork;
+        private string completeColor = "#3498db";
+        private string waitingColor = "#f1c40f";
+        private string foundColor = "#34495e";
+        private string claimColor = "#e74c3c";
 
         public DashboardService(IUnitOfWork uow)
         {
@@ -113,29 +117,29 @@ namespace LostFoundAngkasaPura.Service.Dashboard
             {
                 Label = "Closed",
                 Data = labels.Select(t => dataComplete.ContainsKey(t) ? dataComplete[t]:0).ToList(),
-                BorderColor = "#3498db",
-                BackgroundColor = "#3498db"
+                BorderColor = completeColor,
+                BackgroundColor = completeColor
             };
             var datasetWaiting = new DashboardDataset()
             {
                 Label = "Waiting",
                 Data = labels.Select(t => dataWaiting.ContainsKey(t) ? dataWaiting[t]:0).ToList(),
-                BorderColor = "#f1c40f",
-                BackgroundColor = "#f1c40f"
+                BorderColor = waitingColor,
+                BackgroundColor = waitingColor
             };
             var datasetFound = new DashboardDataset()
             {
                 Label = "Found",
                 Data = labels.Select(t => dataFound.ContainsKey(t) ? dataFound[t] : 0).ToList(),
-                BorderColor= "#34495e",
-                BackgroundColor= "#34495e"
+                BorderColor = foundColor,
+                BackgroundColor = foundColor
             };
             var datasetClaim = new DashboardDataset()
             {
                 Label = "Claim",
                 Data = labels.Select(t => dataClaim.ContainsKey(t) ? dataClaim[t] : 0).ToList(),
-                BorderColor= "#3498db",
-                BackgroundColor= "#3498db"
+                BorderColor = claimColor,
+                BackgroundColor = claimColor
             };
             return new DashboardGrafikData()
             {
@@ -238,29 +242,29 @@ namespace LostFoundAngkasaPura.Service.Dashboard
             {
                 Label = "Closed",
                 Data = labels.Select(t => dataComplete.ContainsKey(t) ? dataComplete[t] : 0).ToList(),
-                BorderColor = "#3498db",
-                BackgroundColor = "#3498db"
+                BorderColor = completeColor,
+                BackgroundColor = completeColor
             };
             var datasetWaiting = new DashboardDataset()
             {
                 Label = "Waiting",
                 Data = labels.Select(t => dataWaiting.ContainsKey(t) ? dataWaiting[t] : 0).ToList(),
-                BorderColor = "#f1c40f",
-                BackgroundColor = "#f1c40f"
+                BorderColor = waitingColor,
+                BackgroundColor = waitingColor
             };
             var datasetFound = new DashboardDataset()
             {
                 Label = "Found",
                 Data = labels.Select(t => dataFound.ContainsKey(t) ? dataFound[t] : 0).ToList(),
-                BorderColor = "#34495e",
-                BackgroundColor = "#34495e"
+                BorderColor = foundColor,
+                BackgroundColor = foundColor
             };
             var datasetClaim = new DashboardDataset()
             {
                 Label = "Claim",
                 Data = labels.Select(t => dataClaim.ContainsKey(t) ? dataClaim[t] : 0).ToList(),
-                BorderColor = "#3498db",
-                BackgroundColor = "#3498db"
+                BorderColor = claimColor,
+                BackgroundColor = claimColor
             };
             return new DashboardGrafikData()
             {

@@ -209,9 +209,9 @@ namespace LostFoundAngkasaPura.Service.ItemFound
 
             var count = await query.CountAsync();
             var data = await query
+                                .OrderByDescending(t => t.CreatedDate)
                                 .Skip((page - 1) * size)
                                 .Take(size)
-                                .OrderByDescending(t=>t.CreatedDate)
                                 .Select(t=>_mapper.Map<ItemFoundResponseDTO>(t))
                                 .ToListAsync();
             return new Pagination<ItemFoundResponseDTO>(data, count, size, page);
